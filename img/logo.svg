@@ -1,0 +1,50 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Circuito de fundo -->
+  <g opacity="0.3" stroke="#06b6d4" stroke-width="1.5" fill="none">
+    <circle cx="100" cy="100" r="85" stroke-dasharray="4 4"/>
+    <path d="M 50 100 L 30 100 M 150 100 L 170 100" />
+    <path d="M 100 50 L 100 30 M 100 150 L 100 170" />
+    <circle cx="30" cy="100" r="4" fill="#06b6d4"/>
+    <circle cx="170" cy="100" r="4" fill="#06b6d4"/>
+    <circle cx="100" cy="30" r="4" fill="#06b6d4"/>
+    <circle cx="100" cy="170" r="4" fill="#06b6d4"/>
+  </g>
+  
+  <!-- Ferramenta -->
+  <g fill="none" stroke="url(#gradient1)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 70 130 L 70 90 Q 70 70 90 70 L 110 70 Q 130 70 130 90 L 130 110" />
+    <circle cx="130" cy="120" r="15" stroke-width="6"/>
+    <rect x="65" y="125" width="10" height="25" rx="2" fill="url(#gradient1)" stroke="none"/>
+  </g>
+  
+  <!-- Nodos neurais com animação -->
+  <circle cx="60" cy="60" r="5" fill="#22d3ee">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="140" cy="60" r="5" fill="#a78bfa">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+  </circle>
+  
+  <circle cx="140" cy="140" r="5" fill="#22d3ee">
+    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" begin="1s" repeatCount="indefinite"/>
+  </circle>
+  
+  <!-- Conexões neurais -->
+  <line x1="60" y1="60" x2="90" y2="80" stroke="#22d3ee" stroke-width="2" opacity="0.4" stroke-dasharray="3 3"/>
+  <line x1="140" y1="60" x2="110" y2="80" stroke="#a78bfa" stroke-width="2" opacity="0.4" stroke-dasharray="3 3"/>
+  <line x1="140" y1="140" x2="130" y2="120" stroke="#22d3ee" stroke-width="2" opacity="0.4" stroke-dasharray="3 3"/>
+  
+  <!-- Brilho AI -->
+  <circle cx="120" cy="55" r="3" fill="#fbbf24">
+    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+</svg>

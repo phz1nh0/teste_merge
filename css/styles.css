@@ -23,7 +23,7 @@
 
         /* HEADER */
         .header {
-            background: #18415b;
+            background: #0f172a;
             padding: 15px 30px;
             display: flex;
             align-items: center;
@@ -43,7 +43,7 @@
         .logo {
             width: 100px;
             height: 100px;
-            background: var(--primary-blue);
+            background: #0f172a;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -115,6 +115,7 @@
         }
 
         .icon-btn {
+            color: white;
             background: none;
             border: none;
             cursor: pointer;
@@ -334,7 +335,7 @@
         /* SIDEBAR */
         .sidebar {
             width: 230px;
-            background: var(--dark-blue);
+            background: #1e293b;
             color: white;
             padding: 20px 0;
         }
