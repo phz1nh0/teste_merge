@@ -117,7 +117,7 @@ def create_app():
     @app.route('/favicon.ico')
     def favicon():
         try:
-            return send_from_directory('../img', 'logo.png', mimetype='image/png')
+            return send_from_directory('../img', 'favicon.png', mimetype='image/png')
         except FileNotFoundError:
             # Se não encontrar o logo, retorna uma resposta vazia
             return '', 204
