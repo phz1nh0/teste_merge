@@ -5,4 +5,4 @@ flask-cors
 flask-jwt-extended
 python-dotenv
 pyjwt
-google-generativeai
+mistralai==0.4.2

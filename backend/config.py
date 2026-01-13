@@ -21,7 +21,7 @@ class Config:
 
     SECRET_KEY = os.getenv("SECRET_KEY", "mude-esta-chave-em-producao")
 
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 
 class DevelopmentConfig(Config):
