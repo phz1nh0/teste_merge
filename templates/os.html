@@ -1,19 +1,18 @@
 {% extends "base.html" %}
 
-{% block title %}Ordens de Serviço - IA SISTEM{% endblock %}
+{% block title %}Ordens de Serviço - TechAI Assist{% endblock %}
 
 {% set active_page = 'os' %}
 
 {% block content %}
             <div class="page-header">
                 <div class="page-title">
-                    <h1 style="color: #FFFFFF;">Ordens de Serviço</h1>
-                    <div class="breadcrumb" style="color:#fef3c7">Dashboard / Ordens de Serviço</div>
+                    <h1>Ordens de Serviço</h1>
                 </div>
                 <div class="header-actions-btn">
-                    <button class="btn btn-secondary" style="color: #FFFFFF;" onclick="exportarOS()">
-                        📊 Exportar
-                    </button>
+        <button class="export-card" onclick="exportarOS()">
+            📊 Exportar
+        </button>
                     <button class="btn btn-primary" onclick="abrirModal('novaOS')">
                         ➕ Nova O.S
                     </button>
@@ -1142,10 +1141,11 @@
         }
 
         .stat-card {
-            background: white;
+            background: var(--bg-primary);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 2px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 15px;
@@ -1169,21 +1169,22 @@
         .stat-info h3 {
             font-size: 28px;
             font-weight: 700;
-            color: var(--dark-blue);
+            color: var(--text-primary);
             margin: 0;
         }
 
         .stat-info p {
-            color: var(--gray-medium);
+            color: var(--text-secondary);
             margin: 5px 0 0 0;
             font-size: 14px;
         }
 
         .filters-section {
-            background: white;
+            background: var(--bg-primary);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 2px solid var(--border-color);
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
@@ -1199,15 +1200,16 @@
         }
 
         .results-info {
-            color: var(--gray-medium);
+            color: var(--text-secondary);
             font-size: 14px;
         }
 
         .os-section {
-            background: white;
+            background: var(--bg-primary);
             border-radius: 12px;
             padding: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 2px solid var(--border-color);
         }
 
         .table-container {
@@ -1220,26 +1222,26 @@
         }
 
         .os-table thead {
-            background: var(--gray-light);
+            background: var(--bg-tertiary);
         }
 
         .os-table th {
             padding: 15px 12px;
             text-align: left;
             font-size: 13px;
-            color: var(--gray-dark);
+            color: var(--text-primary);
             font-weight: 600;
             white-space: nowrap;
         }
 
         .os-table td {
             padding: 15px 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid var(--border-color);
             font-size: 14px;
         }
 
         .os-table tbody tr:hover {
-            background: var(--gray-light);
+            background: var(--bg-tertiary);
         }
 
         .aparelho-info {

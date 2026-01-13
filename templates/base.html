@@ -4,7 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}IA SISTEM{% endblock %}</title>
+    <title>{% block title %}TechAI Assist{% endblock %}</title>
+
+    <!-- Script para aplicar tema imediatamente e prevenir flash -->
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                }
+            } catch (e) {
+                // Fallback caso localStorage não esteja disponível
+                document.documentElement.classList.remove('dark-mode');
+            }
+        })();
+    </script>
+
     <link href="/css/styles.css" rel="stylesheet">
     {% block extra_head %}{% endblock %}
 </head>
@@ -24,7 +42,7 @@
                 <img src="/img/logo.svg" alt="Logo IA Sistem">
             </div>
            <div class="brand">
-                <h2 style="color: #FFFFFF">IA SISTEM</h2>
+                <h2 style="color: #FFFFFF">TechAI Assist</h2>
                 <p style="color: #b9ba6b;">Sistema de Gerenciamento</p>
             </div>
         </div>
@@ -72,6 +90,14 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Botão de Toggle de Tema -->
+            <button class="icon-btn theme-toggle-btn" id="themeToggleBtn" style="color: #FFFFFF" title="Alternar Tema">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="theme-icon">
+                    <!-- Ícone Lua -->
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
             <button class="icon-btn" style="color: #FFFFFF" title="Conta">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"></circle>
@@ -183,6 +209,43 @@
                     console.log('Navegando para:', this.getAttribute('href'));
                 });
             });
+
+            // ========================================
+            // SISTEMA DE TEMA (MODO ESCURO/CLARO)
+            // ========================================
+
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const themeIcon = document.querySelector('.theme-icon');
+
+            // Função para aplicar o tema
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark-mode');
+                    if (themeIcon) {
+                        themeIcon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>';
+                    }
+                } else {
+                    document.documentElement.classList.remove('dark-mode');
+                    if (themeIcon) {
+                        themeIcon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>';
+                    }
+                }
+                localStorage.setItem('theme', theme);
+            }
+
+            // Carregar tema salvo
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+
+            // Toggle do tema
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', function() {
+                    const currentTheme = document.documentElement.classList.contains('dark-mode') ? 'dark' : 'light';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    applyTheme(newTheme);
+                    console.log('Tema alterado para:', newTheme);
+                });
+            }
 
             console.log('✅ JavaScript comum carregado!');
         });

@@ -132,8 +132,8 @@ function protegerPagina() {
  */
 function redirecionarSeLogado() {
     if (estaLogado()) {
-        console.log('ℹ️ Usuário já está logado. Redirecionando...');
-        window.location.href = '/atendimento';
+        console.log('ℹ️ Usuário já está logado. Redirecionando para landing page...');
+        window.location.href = '/dashboard';
     }
 }
 
