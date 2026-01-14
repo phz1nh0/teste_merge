@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IA SISTEM{% endblock %}</title>
+    <link href="/css/styles.css" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo-section">
+            <button class="icon-btn" id="menuToggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="logo">
+                <img src="/img/logo.svg" alt="Logo IA Sistem">
+            </div>
+           <div class="brand">
+                <h2 style="color: #FFFFFF">IA SISTEM</h2>
+                <p style="color: #b9ba6b;">Sistema de Gerenciamento</p>
+            </div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Buscar por cliente, OS, produto...">
+            <button class="search-btn">🔍</button>
+        </div>
+
+        <div class="header-actions">
+            <div class="notification-container">
+                <button class="icon-btn notification-btn" id="notificationBtn" style="color: #FFFFFF" title="Notificações">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                    <span class="notification-badge" id="notificationCount">0</span>
+                </button>
+
+                <!-- Dropdown de Notificações -->
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="notification-header">
+                        <h4>Notificações</h4>
+                        <button class="mark-all-read-btn" id="markAllReadBtn" title="Marcar todas como lidas">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="notification-list" id="notificationList">
+                        <div class="notification-empty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" opacity="0.5">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                            </svg>
+                            <p>Nenhuma notificação</p>
+                        </div>
+                    </div>
+
+                    <div class="notification-footer">
+                        <button class="view-all-notifications-btn" id="viewAllNotificationsBtn">
+                            Ver todas as notificações
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button class="icon-btn" style="color: #FFFFFF" title="Conta">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="10" r="3"></circle>
+                    <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
+                </svg>
+            </button>
+            <button class="icon-btn" data-logout title="Sair do Sistema" style="color: #FFFFFF">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- LAYOUT PRINCIPAL -->
+    <div class="main-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Módulos</div>
+                <ul class="sidebar-menu">
+                    <li><a href="/dashboard" class="{% if active_page == 'dashboard' %}active{% endif %}"><span class="menu-icon">🏠</span> Dashboard</a></li>
+                    <li><a href="/atendimento" class="{% if active_page == 'atendimento' %}active{% endif %}"><span class="menu-icon">⚙️</span> Atendimento</a></li>
+                    <li><a href="/clientes" class="{% if active_page == 'clientes' %}active{% endif %}"><span class="menu-icon">👥</span> Clientes</a></li>
+                    <li><a href="/estoque" class="{% if active_page == 'estoque' %}active{% endif %}"><span class="menu-icon">📦</span> Estoque</a></li>
+                    <li><a href="/os" class="{% if active_page == 'os' %}active{% endif %}"><span class="menu-icon">📋</span> Ordens de Serviço</a></li>
+                    <li><a href="/financeiro" class="{% if active_page == 'financeiro' %}active{% endif %}"><span class="menu-icon">💰</span> Financeiro</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Ajuda</div>
+                <ul class="sidebar-menu">
+                    <li><a href="/atendimento">Suporte</a></li>
+                    <li><a href="/atendimento">Tutorial</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO DINÂMICO -->
+        <main class="content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- SCRIPTS COMUNS -->
+    <script src="/js/storage.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/notifications.js"></script>
+
+    <!-- JAVASCRIPT COMUM PARA TODAS AS PÁGINAS -->
+    <script>
+        // ========================================
+        // JAVASCRIPT COMUM - Funcionalidades compartilhadas
+        // ========================================
+
+        // Toggle sidebar (mobile e desktop)
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', function() {
+                    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+                    if (isMobile) {
+                        // Usar o comportamento mobile já suportado pelo CSS
+                        sidebar.classList.toggle('active');
+                        return;
+                    }
+
+                    // Desktop: recolhe/expande alterando width via estilo inline
+                    // Inicialização única de propriedades para transição suave
+                    if (!sidebar.dataset.desktopInit) {
+                        sidebar.style.overflow = 'hidden';
+                        sidebar.style.transition = 'width 0.25s ease';
+                        sidebar.dataset.desktopInit = 'true';
+                    }
+
+                    const isCollapsed = sidebar.style.width === '0px';
+                    if (isCollapsed) {
+                        // expandir
+                        sidebar.style.width = '230px';
+                    } else {
+                        // recolher
+                        sidebar.style.width = '0px';
+                    }
+                });
+            }
+
+            // Navegação do menu - highlight do item ativo
+            const menuLinks = document.querySelectorAll('.sidebar-menu a');
+            menuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    // Remove active de todos os links
+                    menuLinks.forEach(l => l.classList.remove('active'));
+                    // Adiciona active no link clicado
+                    this.classList.add('active');
+
+                    // Fecha sidebar no mobile após clicar
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('active');
+                    }
+
+                    console.log('Navegando para:', this.getAttribute('href'));
+                });
+            });
+
+            console.log('✅ JavaScript comum carregado!');
+        });
+    </script>
+
+    {% block extra_scripts %}{% endblock %}
+
+    {% block extra_body %}{% endblock %}
+</body>
+
+</html>

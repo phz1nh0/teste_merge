@@ -1,0 +1,851 @@
+{% extends "base.html" %}
+
+{% block title %}Atendimento - IA SISTEM{% endblock %}
+
+{% set active_page = 'atendimento' %}
+
+{% block content %}
+    <div class="page-header">
+        <h1 style="color: #FFFFFF;">Atendimento</h1>
+        <div class="breadcrumb" style="color:#fef3c7">Dashboard / Atendimento</div>
+    </div>
+
+    <!-- AÇÕES RÁPIDAS -->
+    <div class="quick-actions">
+        <div class="action-card" onclick="abrirNovaOS()">
+            <div class="action-card-icon">📝</div>
+            <h3>Nova OS</h3>
+            <p>Criar nova ordem de serviço</p>
+        </div>
+
+        <div class="action-card" onclick="abrirNovoCliente()">
+            <div class="action-card-icon">👤</div>
+            <h3>Novo Cliente</h3>
+            <p>Cadastrar novo cliente</p>
+        </div>
+
+        <div class="action-card" onclick="consultarEstoque()">
+            <div class="action-card-icon">📦</div>
+            <h3>Consultar Estoque</h3>
+            <p>Verificar disponibilidade de peças</p>
+        </div>
+
+        <div class="action-card" onclick="buscarCliente()">
+            <div class="action-card-icon">🔍</div>
+            <h3>Buscar Cliente</h3>
+            <p>Pesquisar clientes cadastrados</p>
+        </div>
+    </div>
+
+    <!-- TABELA DE OS PARA ATENDIMENTO -->
+    <div class="os-table-section">
+        <div class="section-header">
+            <h2>Ordens de Serviço para Atendimento</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="todas">Todas</button>
+                <button class="filter-btn" data-filter="aguardando">Aguardando</button>
+                <button class="filter-btn" data-filter="em_reparo">Em Reparo</button>
+                <button class="filter-btn" data-filter="pronto">Prontas</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="os-table" id="osTable">
+            <thead>
+                <tr>
+                    <th>OS</th>
+                    <th>Cliente</th>
+                    <th>Aparelho</th>
+                    <th>Problema</th>
+                    <th>Status</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+                <tbody id="osTableBody">
+                    <!-- Dados serão inseridos via JavaScript -->
+            </tbody>
+        </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_body %}
+    <!-- MODAL NOVA OS -->
+    <div class="modal" id="modalNovaOS">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Nova Ordem de Serviço</h2>
+                <button class="close-modal" onclick="fecharModal()">×</button>
+            </div>
+
+            <form id="formNovaOS">
+                <div class="form-group">
+                    <label for="clienteOS">Cliente *</label>
+                    <select id="clienteOS" name="cliente" required>
+                        <option value="">Selecione o cliente...</option>
+                        <!-- Opções serão preenchidas via JavaScript -->
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipoAparelho">Tipo de Aparelho *</label>
+                        <select id="tipoAparelho" name="tipoAparelho" required>
+                            <option value="">Selecione...</option>
+                            <option value="smartphone">Smartphone</option>
+                            <option value="tablet">Tablet</option>
+                            <option value="notebook">Notebook</option>
+                            <option value="desktop">Desktop</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                <div class="form-group">
+                        <label for="marcaModelo">Marca/Modelo *</label>
+                        <input type="text" id="marcaModelo" name="marcaModelo" placeholder="Ex: iPhone 12 Pro" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="problemaRelatado">Problema Relatado *</label>
+                    <textarea id="problemaRelatado" name="problemaRelatado" rows="4" placeholder="Descreva o problema reportado pelo cliente" required></textarea>
+                </div>
+
+                <div class="form-row">
+                <div class="form-group">
+                        <label for="prazoEstimado">Prazo Estimado (dias) *</label>
+                        <input type="number" id="prazoEstimado" name="prazoEstimado" value="3" min="1" required>
+                </div>
+                <div class="form-group">
+                        <label for="prioridade">Prioridade</label>
+                        <select id="prioridade" name="prioridade">
+                            <option value="normal">Normal</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Criar OS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO CLIENTE -->
+    <div class="modal" id="modalNovoCliente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Novo Cliente</h2>
+                <button class="close-modal" onclick="fecharModal()">×</button>
+            </div>
+
+            <form id="formNovoCliente">
+                <div class="form-group">
+                    <label for="nomeCliente">Nome Completo *</label>
+                    <input type="text" id="nomeCliente" name="nome" placeholder="Nome do cliente" required>
+                </div>
+
+                <div class="form-row">
+                <div class="form-group">
+                        <label for="cpfCnpjCliente">CPF/CNPJ *</label>
+                        <input type="text" id="cpfCnpjCliente" name="cpfCnpj" placeholder="000.000.000-00" required>
+                </div>
+                <div class="form-group">
+                        <label for="telefoneCliente">Telefone *</label>
+                        <input type="tel" id="telefoneCliente" name="telefone" placeholder="(00) 00000-0000" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailCliente">E-mail</label>
+                    <input type="email" id="emailCliente" name="email" placeholder="cliente@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="enderecoCliente">Endereço</label>
+                    <input type="text" id="enderecoCliente" name="endereco" placeholder="Rua, número, bairro">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cadastrar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL BUSCAR CLIENTE -->
+    <div class="modal" id="modalBuscarCliente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Buscar Cliente</h2>
+                <button class="close-modal" onclick="fecharModal()">×</button>
+            </div>
+
+            <div class="form-group">
+                <input type="text" id="buscaCliente" placeholder="Digite nome, CPF ou telefone do cliente...">
+            </div>
+
+            <div id="resultadosBusca" class="resultados-busca">
+                <!-- Resultados serão inseridos via JavaScript -->
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="/js/clientes.js"></script>
+    <script src="/js/estoque.js"></script>
+
+    <script>
+        // ========================================
+        // SCRIPT DA PÁGINA DE ATENDIMENTO
+        // ========================================
+
+        // Array que mantém as OS em memória
+        let osEmMemoria = [];
+
+        // Estado do filtro atual
+        let filtroStatusAtual = 'todas';
+
+        // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
+        let searchInput, osTableBody;
+
+        // ============================
+        // FUNÇÕES DE DADOS (usando API)
+        // ============================
+
+        /**
+         * Carrega todas as OS da API
+         */
+        async function carregarOS() {
+            try {
+                const os = await listarOSApi();
+                osEmMemoria = os || [];
+                console.log('✅ OS carregadas da API:', osEmMemoria.length);
+                return osEmMemoria;
+            } catch (e) {
+                console.error('❌ Erro ao carregar OS:', e);
+                osEmMemoria = [];
+                return osEmMemoria;
+            }
+        }
+
+        /**
+         * Adiciona uma nova OS via API
+         */
+        async function adicionarOS(os) {
+            try {
+                console.log('📝 Criando OS via API:', os);
+                const criado = await criarOSApi(os);
+                console.log('✅ OS criada:', criado);
+
+                // Adiciona ao array local também
+                osEmMemoria.push(criado);
+                return criado;
+            } catch (e) {
+                console.error('❌ Erro ao criar OS:', e);
+                throw e;
+            }
+        }
+
+        /**
+         * Gera próximo número de OS
+         */
+        function gerarProximoNumeroOS() {
+            const numerosExistentes = osEmMemoria.map(os => {
+                const numero = os.numeroOS.replace('#', '').replace('OS', '');
+                return parseInt(numero) || 0;
+            });
+
+            const proximoNumero = Math.max(...numerosExistentes, 0) + 1;
+            return `#OS${proximoNumero.toString().padStart(4, '0')}`;
+        }
+
+        /**
+         * Busca OS por termo
+         */
+        function buscarOS(termo) {
+            if (!termo || termo.trim() === '') {
+                return osEmMemoria.slice(0, 10); // Mostra apenas as 10 mais recentes
+            }
+
+            const termoLower = termo.toLowerCase();
+
+            return osEmMemoria.filter(os => {
+                return (
+                    os.numeroOS.toLowerCase().includes(termoLower) ||
+                    os.clienteNome?.toLowerCase().includes(termoLower) ||
+                    os.marcaModelo.toLowerCase().includes(termoLower) ||
+                    os.problemaRelatado.toLowerCase().includes(termoLower)
+                );
+            });
+        }
+
+        /**
+         * Valida formulário de OS (versão simplificada para atendimento)
+         */
+        function validarFormularioOS(dados) {
+            const erros = [];
+
+            if (!dados.cliente || dados.cliente.trim() === '') {
+                erros.push('Cliente é obrigatório');
+            }
+
+            if (!dados.tipoAparelho || dados.tipoAparelho.trim() === '') {
+                erros.push('Tipo de aparelho é obrigatório');
+            }
+
+            if (!dados.marcaModelo || dados.marcaModelo.trim() === '') {
+                erros.push('Marca/Modelo é obrigatório');
+            }
+
+            if (!dados.problemaRelatado || dados.problemaRelatado.trim() === '') {
+                erros.push('Problema relatado é obrigatório');
+            }
+
+            if (!dados.prazoEstimado || dados.prazoEstimado < 1) {
+                erros.push('Prazo estimado deve ser pelo menos 1 dia');
+            }
+
+            return {
+                valido: erros.length === 0,
+                erros: erros
+            };
+        }
+
+        // ============================
+        // FUNÇÕES DE INTERFACE
+        // ============================
+
+
+
+        /**
+         * Renderiza a tabela de OS
+         */
+        function renderizarTabelaOS(filtroStatus = 'todas') {
+            let osFiltradas = osEmMemoria
+                .sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao));
+
+            // Aplica filtro por status
+            if (filtroStatus !== 'todas') {
+                if (filtroStatus === 'pronto') {
+                    // "Prontas" inclui apenas status "pronto" (não entregue/cancelado)
+                    osFiltradas = osFiltradas.filter(os => os.status === 'pronto');
+                } else {
+                    osFiltradas = osFiltradas.filter(os => os.status === filtroStatus);
+                }
+            }
+
+            const osRecentes = osFiltradas.slice(0, 10);
+
+            osTableBody.innerHTML = '';
+
+            if (osRecentes.length === 0) {
+                osTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--gray-medium);">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📋</div>
+                            <div>Nenhuma ordem de serviço encontrada</div>
+                            <div style="font-size: 14px; margin-top: 10px;">Crie sua primeira O.S!</div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            osRecentes.forEach(os => {
+                const row = document.createElement('tr');
+                const dataCriacao = new Date(os.dataCriacao);
+                const prazoLimite = new Date(dataCriacao);
+                prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+                const hoje = new Date();
+                const atrasada = hoje > prazoLimite && os.status !== 'entregue' && os.status !== 'cancelado';
+
+                row.innerHTML = `
+                    <td><strong>${os.numeroOS}</strong></td>
+                    <td>${os.clienteNome}</td>
+                    <td>
+                        <div class="aparelho-info">
+                            <div class="aparelho-icon">📱</div>
+                            <span>${os.marcaModelo}</span>
+                        </div>
+                    </td>
+                    <td class="problema-cell">${os.problemaRelatado.substring(0, 50)}${os.problemaRelatado.length > 50 ? '...' : ''}</td>
+                    <td><span class="status-badge ${os.status}">${getStatusText(os.status)}</span></td>
+                    <td>${formatarData(os.dataCriacao)}</td>
+                    <td>
+                        <div class="actions-cell">
+                            <button class="action-btn-small btn-view" onclick="visualizarOS('${os.id}')" title="Visualizar">
+                                👁️
+                            </button>
+                            <button class="action-btn-small btn-edit" onclick="editarOS('${os.id}')" title="Editar">
+                                ✏️
+                            </button>
+                        </div>
+                    </td>
+                `;
+                osTableBody.appendChild(row);
+            });
+        }
+
+
+
+        /**
+         * Retorna texto do status
+         */
+        function getStatusText(status) {
+            const statusMap = {
+                'aguardando': 'Aguardando',
+                'em_reparo': 'Em Reparo',
+                'pronto': 'Pronto',
+                'entregue': 'Entregue',
+                'cancelado': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+
+        // ============================
+        // FUNÇÕES DE AÇÕES RÁPIDAS
+        // ============================
+
+        /**
+         * Abre modal para nova OS
+         */
+        function abrirNovaOS() {
+            const modal = document.getElementById('modalNovaOS');
+            const selectCliente = document.getElementById('clienteOS');
+
+            // Carrega clientes no select
+            selectCliente.innerHTML = '<option value="">Selecione o cliente...</option>';
+            clientesEmMemoria.forEach(cliente => {
+                const option = document.createElement('option');
+                option.value = cliente.nome;
+                option.textContent = cliente.nome;
+                selectCliente.appendChild(option);
+            });
+
+            modal.classList.add('active');
+        }
+
+        /**
+         * Abre modal para novo cliente
+         */
+        function abrirNovoCliente() {
+            const modal = document.getElementById('modalNovoCliente');
+            modal.classList.add('active');
+        }
+
+        /**
+         * Redireciona para página de estoque
+         */
+        function consultarEstoque() {
+            window.location.href = '/estoque';
+        }
+
+        /**
+         * Abre modal para buscar cliente
+         */
+        function buscarCliente() {
+            const modal = document.getElementById('modalBuscarCliente');
+            modal.classList.add('active');
+        }
+
+        /**
+         * Visualiza OS
+         */
+        function visualizarOS(id) {
+            window.location.href = `/os#view=${id}`;
+        }
+
+        /**
+         * Edita OS
+         */
+        function editarOS(id) {
+            window.location.href = `/os#edit=${id}`;
+        }
+
+        /**
+         * Fecha todos os modais
+         */
+        function fecharModal() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+        }
+
+        // ============================
+        // EVENTOS (movidos para dentro do DOMContentLoaded)
+        // ============================
+
+        // ============================
+        // INICIALIZAÇÃO
+        // ============================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Protege a página
+            protegerPagina();
+
+            // Atualiza informações do usuário
+            atualizarInfoUsuario();
+
+            // Define elementos do DOM (agora que estão disponíveis)
+            searchInput = document.getElementById('searchInput');
+            osTableBody = document.getElementById('osTableBody');
+            // Elementos específicos do dashboard removidos - não existem nesta página
+
+            // Carrega dados (espera pelas chamadas assíncronas)
+            await carregarOS(); // Agora usa API também
+            await carregarClientes(); // Espera carregar clientes da API
+            await carregarProdutos(); // Espera carregar produtos da API
+
+            // Renderiza interface após os dados serem carregados
+            renderizarTabelaOS(filtroStatusAtual);
+
+            // Configura event listeners (agora que os elementos existem)
+            configurarEventListeners();
+
+            console.log('✅ Página de atendimento carregada!');
+            console.log('📊 Dados carregados - OS:', osEmMemoria.length, 'Clientes:', clientesEmMemoria.length, 'Produtos:', produtosEmMemoria.length);
+        });
+
+        /**
+         * Configura todos os event listeners da página
+         */
+        function configurarEventListeners() {
+            // Evento de busca
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    const termo = e.target.value.trim();
+                    if (termo) {
+                        const resultados = buscarOS(termo);
+                        renderizarTabelaOS(filtroStatusAtual);
+                    } else {
+                        renderizarTabelaOS(filtroStatusAtual);
+                    }
+                });
+            }
+
+            // Evento do formulário de nova OS
+            const formNovaOS = document.getElementById('formNovaOS');
+            if (formNovaOS) {
+                formNovaOS.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const dados = Object.fromEntries(formData.entries());
+
+                    // Processar campos especiais antes da validação
+                    if (dados.valorOrcamento) {
+                        // Converter "R$ 9,99" para 9.99
+                        dados.valorOrcamento = dados.valorOrcamento
+                            .replace('R$ ', '') // Remove "R$ "
+                            .replace('.', '') // Remove pontos de milhares
+                            .replace(',', '.'); // Converte vírgula para ponto
+                        dados.valorOrcamento = parseFloat(dados.valorOrcamento) || 0;
+                    }
+
+                    // Validação
+                    const validacao = validarFormularioOS(dados);
+                    if (!validacao.valido) {
+                        alert('Erro na validação:\n' + validacao.erros.join('\n'));
+                        return;
+                    }
+
+                    const osId = document.getElementById('osId').value;
+
+                    console.log('📝 Processando formulário - osId:', osId, 'dados:', dados);
+
+                    if (osId) {
+                        console.log('🔄 Atualizando OS existente:', osId);
+                        // Atualizar OS existente
+                        if (atualizarOS(osId, dados)) {
+                            alert('O.S atualizada com sucesso!');
+                            fecharModal();
+                            renderizarTabelaOS(filtroStatusAtual);
+                        } else {
+                            alert('Erro ao atualizar O.S. Tente novamente.');
+                        }
+                    } else {
+                        console.log('➕ Criando nova OS');
+                        // Adicionar nova OS
+                        const resultado = await adicionarOS(dados);
+                        console.log('Resultado da criação:', resultado);
+
+                        if (resultado) {
+                            alert('O.S criada com sucesso!');
+                            fecharModal();
+
+                            console.log('🔄 Recarregando dados da API...');
+                            // Recarrega dados da API e reaplica filtros
+                            await carregarOS();
+                            console.log('✅ Dados recarregados - Total OS:', osEmMemoria.length);
+
+                            renderizarTabelaOS(filtroStatusAtual);
+                        } else {
+                            alert('Erro ao criar O.S. Tente novamente.');
+                        }
+                    }
+                });
+            }
+
+            // Evento do formulário de novo cliente
+            const formNovoCliente = document.getElementById('formNovoCliente');
+            if (formNovoCliente) {
+                formNovoCliente.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const dados = Object.fromEntries(formData.entries());
+
+                    try {
+                        await adicionarCliente(dados);
+                        alert('Cliente cadastrado com sucesso!');
+                        fecharModal();
+                        this.reset();
+                    } catch (erro) {
+                        const mensagemErro = erro.message || 'Erro ao processar a solicitação. Tente novamente.';
+                        alert('❌ Erro: ' + mensagemErro);
+                        console.error('Erro ao cadastrar cliente:', erro);
+                    }
+                });
+            }
+
+            // Evento de busca de cliente
+            const buscaCliente = document.getElementById('buscaCliente');
+            if (buscaCliente) {
+                buscaCliente.addEventListener('input', function(e) {
+                    const termo = e.target.value.trim();
+                    const resultados = buscarClientes(termo);
+                    const container = document.getElementById('resultadosBusca');
+
+                    if (container) {
+                        container.innerHTML = '';
+
+                        if (resultados.length === 0) {
+                            container.innerHTML = '<p>Nenhum cliente encontrado.</p>';
+                            return;
+                        }
+
+                        resultados.forEach(cliente => {
+                            const div = document.createElement('div');
+                            div.className = 'resultado-cliente';
+                            div.innerHTML = `
+                                <div class="cliente-info">
+                                    <div class="cliente-avatar">${cliente.nome.charAt(0).toUpperCase()}</div>
+                                    <div>
+                                        <strong>${cliente.nome}</strong>
+                                        <p>${cliente.telefone} | ${cliente.cpfCnpj}</p>
+                                    </div>
+                                </div>
+                                <button class="btn btn-primary" onclick="selecionarCliente('${cliente.id}')">Selecionar</button>
+                            `;
+                            container.appendChild(div);
+                        });
+                    }
+                });
+            }
+
+            // Formatação automática de campos
+            const cpfCnpjCliente = document.getElementById('cpfCnpjCliente');
+            if (cpfCnpjCliente) {
+                cpfCnpjCliente.addEventListener('input', function(e) {
+                    e.target.value = formatarCpfCnpj(e.target.value);
+                });
+            }
+
+            const telefoneCliente = document.getElementById('telefoneCliente');
+            if (telefoneCliente) {
+                telefoneCliente.addEventListener('input', function(e) {
+                    e.target.value = formatarTelefone(e.target.value);
+                });
+            }
+
+            // Eventos de filtro por status
+            document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove classe active de todos os botões
+                    document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.remove('active'));
+                    // Adiciona classe active no botão clicado
+                    this.classList.add('active');
+
+                    // Atualiza filtro atual e renderiza tabela
+                    filtroStatusAtual = this.getAttribute('data-filter');
+                    renderizarTabelaOS(filtroStatusAtual);
+
+                    console.log('🔍 Filtro aplicado:', filtroStatusAtual);
+                });
+            });
+
+            // Fechar modal ao clicar fora
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        fecharModal();
+                    }
+                });
+            });
+        }
+    </script>
+
+    <style>
+        /* Estilos específicos para a página de atendimento */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.blue { background: #dbeafe; color: #1e3a8a; }
+        .stat-icon.green { background: #d1fae5; color: #065f46; }
+        .stat-icon.yellow { background: #fef3c7; color: #92400e; }
+        .stat-icon.red { background: #fee2e2; color: #dc2626; }
+
+        .stat-info h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin: 0;
+        }
+
+        .stat-info p {
+            color: var(--gray-medium);
+            margin: 5px 0 0 0;
+            font-size: 14px;
+        }
+
+        .aparelho-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .aparelho-icon {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-blue);
+                color: white;
+                border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .problema-cell {
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.aguardando {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.em_reparo {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .status-badge.pronto {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge.entregue {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .status-badge.cancelado {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .resultados-busca {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .resultado-cliente {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .cliente-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cliente-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .alert-item.critical {
+            border-left-color: var(--red);
+            background: #fee2e2;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .os-table {
+                font-size: 12px;
+            }
+
+            .os-table th,
+            .os-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+{% endblock %}

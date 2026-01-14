@@ -3,9 +3,6 @@
 // ========================================
 // Este arquivo contém todas as funções relacionadas ao módulo de clientes
 
-// Chave para armazenar clientes no localStorage
-const CHAVE_CLIENTES = 'ia_sistem_clientes';
-
 // Array que mantém os clientes em memória durante a sessão
 let clientesEmMemoria = [];
 
@@ -14,86 +11,94 @@ let clientesEmMemoria = [];
 // ============================
 
 /**
- * Carrega todos os clientes do localStorage
- * @returns {Array} Array de clientes
+ * Carrega todos os clientes da API
+ * @returns {Promise<Array>} Array de clientes
  */
-function carregarClientes() {
-    const clientes = recuperarDados(CHAVE_CLIENTES);
-    clientesEmMemoria = clientes || [];
+async function carregarClientes() {
+    try {
+        const clientes = await listarClientesApi();
+        clientesEmMemoria = clientes || [];
+    } catch (e) {
+        clientesEmMemoria = [];
+    }
     return clientesEmMemoria;
 }
 
 /**
- * Salva todos os clientes no localStorage
- * @returns {boolean} true se salvou com sucesso
+ * (Mantida por compatibilidade – agora não faz nada além de retornar true)
  */
 function salvarClientes() {
-    return salvarDados(CHAVE_CLIENTES, clientesEmMemoria);
-}
-
-/**
- * Adiciona um novo cliente
- * @param {object} cliente - Dados do cliente
- * @returns {object} Cliente criado com ID
- */
-function adicionarCliente(cliente) {
-    // Gera ID único para o cliente
-    cliente.id = gerarId();
-    cliente.dataCadastro = new Date().toISOString();
-    cliente.dataAtualizacao = new Date().toISOString();
-    
-    // Adiciona ao array
-    clientesEmMemoria.push(cliente);
-    
-    // Salva no localStorage
-    salvarClientes();
-    
-    console.log('✅ Cliente adicionado:', cliente.nome);
-    return cliente;
-}
-
-/**
- * Atualiza um cliente existente
- * @param {string} id - ID do cliente
- * @param {object} dadosAtualizados - Novos dados do cliente
- * @returns {boolean} true se atualizou com sucesso
- */
-function atualizarCliente(id, dadosAtualizados) {
-    const indice = clientesEmMemoria.findIndex(c => c.id === id);
-    
-    if (indice === -1) {
-        console.error('❌ Cliente não encontrado:', id);
-        return false;
-    }
-    
-    // Mantém ID e data de cadastro, atualiza o resto
-    dadosAtualizados.id = id;
-    dadosAtualizados.dataCadastro = clientesEmMemoria[indice].dataCadastro;
-    dadosAtualizados.dataAtualizacao = new Date().toISOString();
-    
-    clientesEmMemoria[indice] = dadosAtualizados;
-    salvarClientes();
-    
-    console.log('✅ Cliente atualizado:', dadosAtualizados.nome);
     return true;
 }
 
 /**
- * Remove um cliente
- * @param {string} id - ID do cliente
- * @returns {boolean} true se removeu com sucesso
+ * Adiciona um novo cliente via API
+ * @param {object} cliente - Dados do cliente
+ * @returns {Promise<object|null>} Cliente criado com ID ou null em caso de erro
  */
-function removerCliente(id) {
-    const indice = clientesEmMemoria.findIndex(c => c.id === id);
+async function adicionarCliente(cliente) {
+    try {
+        const criado = await criarClienteApi(cliente);
+        clientesEmMemoria.push(criado);
+        console.log('✅ Cliente adicionado:', criado.nome);
+
+        // Atualiza notificações se disponível
+        if (window.notificationManager) {
+            window.notificationManager.atualizarContador();
+        }
+
+        return criado;
+    } catch (e) {
+        console.error('❌ Erro ao adicionar cliente:', e);
+        // Se o erro já tem uma mensagem amigável (vinda do backend), lança novamente
+        // O código que chama essa função deve tratar o erro e exibir a mensagem
+        throw e;
+    }
+}
+
+/**
+ * Atualiza um cliente existente via API
+ * @param {string|number} id - ID do cliente
+ * @param {object} dadosAtualizados - Novos dados do cliente
+ * @returns {Promise<boolean>} true se atualizou com sucesso
+ */
+async function atualizarCliente(id, dadosAtualizados) {
+    const indice = clientesEmMemoria.findIndex(c => c.id === parseInt(id));
+
+    if (indice === -1) {
+        console.error('❌ Cliente não encontrado:', id);
+        throw new Error('Cliente não encontrado');
+    }
     
+    try {
+        const atualizado = await atualizarClienteApi(id, dadosAtualizados);
+        clientesEmMemoria[indice] = atualizado;
+        
+        console.log('✅ Cliente atualizado:', atualizado.nome);
+        return true;
+    } catch (e) {
+        console.error('❌ Erro ao atualizar cliente:', e);
+        // Re-lança o erro para que o código que chama possa tratar
+        throw e;
+    }
+}
+
+/**
+ * Remove um cliente via API
+ * @param {string|number} id - ID do cliente
+ * @returns {Promise<boolean>} true se removeu com sucesso
+ */
+async function removerCliente(id) {
+    const indice = clientesEmMemoria.findIndex(c => c.id === parseInt(id));
+
     if (indice === -1) {
         console.error('❌ Cliente não encontrado:', id);
         return false;
     }
     
     const nomeCliente = clientesEmMemoria[indice].nome;
+    await deletarClienteApi(id);
     clientesEmMemoria.splice(indice, 1);
-    salvarClientes();
     
     console.log('✅ Cliente removido:', nomeCliente);
     return true;
@@ -101,11 +106,11 @@ function removerCliente(id) {
 
 /**
  * Busca um cliente por ID
- * @param {string} id - ID do cliente
+ * @param {string|number} id - ID do cliente
  * @returns {object|null} Cliente encontrado ou null
  */
 function buscarClientePorId(id) {
-    return clientesEmMemoria.find(c => c.id === id) || null;
+    return clientesEmMemoria.find(c => c.id === parseInt(id)) || null;
 }
 
 /**
@@ -313,5 +318,3 @@ function formatarTelefone(valor) {
 carregarClientes();
 console.log('✅ clientes.js carregado com sucesso!');
 console.log('📊 Total de clientes:', clientesEmMemoria.length);
-
-

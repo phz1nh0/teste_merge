@@ -1,98 +1,17 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ordens de Serviço - IA SISTEM</title>
-    <link href="css/styles.css" rel="stylesheet">
-</head>
+{% block title %}Ordens de Serviço - IA SISTEM{% endblock %}
 
-<body>
-    <!-- HEADER -->
-    <header class="header">
-        <div class="logo-section">
-            <button class="icon-btn" id="menuToggle">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
-            </button>
-            <div class="logo">
-                <img src="img/ia-system.png" alt="Logo IA Sistem">
-            </div>
-            <div class="brand">
-                <h2>IA SISTEM</h2>
-                <p>Sistema de Gerenciamento</p>
-            </div>
-        </div>
+{% set active_page = 'os' %}
 
-        <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="Buscar OS por número, cliente, aparelho...">
-            <button class="search-btn">🔍</button>
-        </div>
-
-        <div class="header-actions">
-            <button class="icon-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-                <span class="notification-badge">5</span>
-            </button>
-            <button class="icon-btn">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <circle cx="12" cy="10" r="3"></circle>
-                    <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855"></path>
-                </svg>
-            </button>
-            <button class="icon-btn" data-logout title="Sair do Sistema">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                    <polyline points="16 17 21 12 16 7"></polyline>
-                    <line x1="21" y1="12" x2="9" y2="12"></line>
-                </svg>
-            </button>
-        </div>
-    </header>
-
-    <!-- LAYOUT PRINCIPAL -->
-    <div class="main-layout">
-        <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">Módulos</div>
-                <ul class="sidebar-menu">
-                    <li><a href="atendimento.html">Dashboard</a></li>
-                    <li><a href="atendimento.html">Atendimento</a></li>
-                    <li><a href="clientes.html">Cliente</a></li>
-                    <li><a href="atendimento.html">Financeiro</a></li>
-                    <li><a href="estoque.html">Estoque</a></li>
-                    <li><a href="os.html" class="active">O.S</a></li>
-                    <li><a href="atendimento.html">Configuração</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Ajuda</div>
-                <ul class="sidebar-menu">
-                    <li><a href="atendimento.html">Suporte</a></li>
-                    <li><a href="atendimento.html">Tutorial</a></li>
-                </ul>
-            </div>
-        </aside>
-
-        <!-- CONTEÚDO -->
-        <main class="content">
+{% block content %}
             <div class="page-header">
                 <div class="page-title">
-                    <h1>Ordens de Serviço</h1>
-                    <div class="breadcrumb">Dashboard / Ordens de Serviço</div>
+                    <h1 style="color: #FFFFFF;">Ordens de Serviço</h1>
+                    <div class="breadcrumb" style="color:#fef3c7">Dashboard / Ordens de Serviço</div>
                 </div>
                 <div class="header-actions-btn">
-                    <button class="btn btn-secondary" onclick="exportarOS()">
+                    <button class="btn btn-secondary" style="color: #FFFFFF;" onclick="exportarOS()">
                         📊 Exportar
                     </button>
                     <button class="btn btn-primary" onclick="abrirModal('novaOS')">
@@ -208,9 +127,9 @@
                     <!-- Paginação será inserida via JavaScript -->
                 </div>
             </div>
-        </main>
-    </div>
+{% endblock %}
 
+{% block extra_body %}
     <!-- MODAL NOVA/EDITAR O.S -->
     <div class="modal" id="modalOS">
         <div class="modal-content">
@@ -221,7 +140,7 @@
 
             <form id="formOS">
                 <input type="hidden" id="osId" name="id">
-                
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="numeroOS">Número da O.S</label>
@@ -241,7 +160,7 @@
 
                 <div class="form-group">
                     <label for="cliente">Cliente *</label>
-                    <select id="cliente" name="cliente" required>
+                    <select id="cliente" name="clienteId" required>
                         <option value="">Selecione o cliente...</option>
                         <!-- Opções serão preenchidas via JavaScript -->
                     </select>
@@ -328,18 +247,14 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <!-- Scripts -->
-    <script src="js/storage.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/clientes.js"></script>
+{% block extra_scripts %}
+    <script src="/js/clientes.js"></script>
     <script>
         // ========================================
         // SCRIPT DA PÁGINA DE ORDENS DE SERVIÇO
         // ========================================
-
-        // Chave para armazenar OS no localStorage
-        const CHAVE_OS = 'ia_sistem_os';
 
         // Array que mantém as OS em memória durante a sessão
         let osEmMemoria = [];
@@ -350,97 +265,96 @@
         let paginaAtual = 1;
         const itensPorPagina = 10;
 
-        // Elementos do DOM
-        const searchInput = document.getElementById('searchInput');
-        const osTableBody = document.getElementById('osTableBody');
-        const pagination = document.getElementById('pagination');
-        const totalOS = document.getElementById('totalOS');
-        const osAguardando = document.getElementById('osAguardando');
-        const osEmReparo = document.getElementById('osEmReparo');
-        const osAtrasadas = document.getElementById('osAtrasadas');
-        const resultadosInfo = document.getElementById('resultadosInfo');
+        // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
+        let searchInput, osTableBody, pagination, totalOS, osAguardando, osEmReparo, osAtrasadas, resultadosInfo;
 
         // ============================
         // FUNÇÕES DE DADOS
         // ============================
 
         /**
-         * Carrega todas as OS do localStorage
+         * Carrega todas as OS da API
          */
-        function carregarOS() {
-            const os = recuperarDados(CHAVE_OS);
-            osEmMemoria = os || [];
-            return osEmMemoria;
+        async function carregarOS() {
+            try {
+                console.log('📡 Fazendo requisição para API de OS...');
+                const os = await listarOSApi();
+                console.log('📦 Dados recebidos da API:', os);
+
+                osEmMemoria = os || [];
+                console.log('✅ OS carregadas na memória:', osEmMemoria.length);
+
+                // Log detalhado das OS carregadas
+                osEmMemoria.forEach((os, index) => {
+                    console.log(`  ${index + 1}. ${os.numeroOS} - ${os.clienteNome} - ${os.status}`);
+                });
+
+                return osEmMemoria;
+            } catch (e) {
+                console.error('❌ Erro ao carregar OS:', e);
+                osEmMemoria = [];
+                return osEmMemoria;
+            }
         }
 
         /**
-         * Salva todas as OS no localStorage
+         * Adiciona uma nova OS via API
          */
-        function salvarOS() {
-            return salvarDados(CHAVE_OS, osEmMemoria);
+        async function adicionarOS(os) {
+            try {
+                console.log('📝 Tentando criar OS:', os);
+                const criado = await criarOSApi(os);
+                console.log('✅ OS criada na API:', criado);
+
+                // Adiciona ao array local também
+                osEmMemoria.push(criado);
+
+                console.log('✅ OS adicionada ao array local:', criado.numeroOS);
+                return criado;
+            } catch (e) {
+                console.error('❌ Erro ao adicionar OS:', e);
+                throw e;
+            }
         }
 
         /**
-         * Adiciona uma nova OS
+         * Atualiza uma OS existente via API
          */
-        function adicionarOS(os) {
-            // Gera número da OS
-            const proximoNumero = gerarProximoNumeroOS();
-            os.numeroOS = proximoNumero;
-            os.id = gerarId();
-            os.dataCriacao = new Date().toISOString();
-            os.dataAtualizacao = new Date().toISOString();
-            os.status = os.status || 'aguardando';
-            
-            // Adiciona ao array
-            osEmMemoria.push(os);
-            
-            // Salva no localStorage
-            salvarOS();
-            
-            console.log('✅ OS adicionada:', os.numeroOS);
-            return os;
+        async function atualizarOS(id, dadosAtualizados) {
+            const indice = osEmMemoria.findIndex(o => o.id === parseInt(id));
+
+            if (indice === -1) {
+                console.error('❌ OS não encontrada:', id);
+                throw new Error('OS não encontrada');
+            }
+
+            try {
+                const atualizado = await atualizarOSApi(id, dadosAtualizados);
+                osEmMemoria[indice] = atualizado;
+
+                console.log('✅ OS atualizada:', atualizado.numeroOS);
+                return true;
+            } catch (e) {
+                console.error('❌ Erro ao atualizar OS:', e);
+                throw e;
+            }
         }
 
         /**
-         * Atualiza uma OS existente
+         * Remove uma OS via API
          */
-        function atualizarOS(id, dadosAtualizados) {
-            const indice = osEmMemoria.findIndex(o => o.id === id);
-            
+        async function removerOS(id) {
+            const indice = osEmMemoria.findIndex(o => o.id === parseInt(id));
+
             if (indice === -1) {
                 console.error('❌ OS não encontrada:', id);
                 return false;
             }
-            
-            // Mantém ID e data de criação, atualiza o resto
-            dadosAtualizados.id = id;
-            dadosAtualizados.numeroOS = osEmMemoria[indice].numeroOS;
-            dadosAtualizados.dataCriacao = osEmMemoria[indice].dataCriacao;
-            dadosAtualizados.dataAtualizacao = new Date().toISOString();
-            
-            osEmMemoria[indice] = dadosAtualizados;
-            salvarOS();
-            
-            console.log('✅ OS atualizada:', dadosAtualizados.numeroOS);
-            return true;
-        }
 
-        /**
-         * Remove uma OS
-         */
-        function removerOS(id) {
-            const indice = osEmMemoria.findIndex(o => o.id === id);
-            
-            if (indice === -1) {
-                console.error('❌ OS não encontrada:', id);
-                return false;
-            }
-            
             const numeroOS = osEmMemoria[indice].numeroOS;
+            await deletarOSApi(id);
             osEmMemoria.splice(indice, 1);
-            salvarOS();
-            
+
             console.log('✅ OS removida:', numeroOS);
             return true;
         }
@@ -449,7 +363,7 @@
          * Busca uma OS por ID
          */
         function buscarOSPorId(id) {
-            return osEmMemoria.find(o => o.id === id) || null;
+            return osEmMemoria.find(o => o.id === parseInt(id)) || null;
         }
 
         /**
@@ -459,13 +373,13 @@
             if (!termo || termo.trim() === '') {
                 return osEmMemoria;
             }
-            
+
             const termoLower = termo.toLowerCase();
-            
+
             return osEmMemoria.filter(os => {
                 return (
                     os.numeroOS.toLowerCase().includes(termoLower) ||
-                    os.cliente.toLowerCase().includes(termoLower) ||
+                    os.clienteNome?.toLowerCase().includes(termoLower) ||
                     os.marcaModelo.toLowerCase().includes(termoLower) ||
                     os.problemaRelatado.toLowerCase().includes(termoLower)
                 );
@@ -473,25 +387,12 @@
         }
 
         /**
-         * Gera próximo número de OS
-         */
-        function gerarProximoNumeroOS() {
-            const numerosExistentes = osEmMemoria.map(os => {
-                const numero = os.numeroOS.replace('#', '').replace('OS', '');
-                return parseInt(numero) || 0;
-            });
-            
-            const proximoNumero = Math.max(...numerosExistentes, 0) + 1;
-            return `#OS${proximoNumero.toString().padStart(4, '0')}`;
-        }
-
-        /**
          * Valida formulário de OS
          */
         function validarFormularioOS(dados) {
             const erros = [];
-            
-            if (!dados.cliente || dados.cliente.trim() === '') {
+
+            if (!dados.clienteId || dados.clienteId.trim() === '') {
                 erros.push('Cliente é obrigatório');
             }
             
@@ -582,7 +483,7 @@
                 
                 row.innerHTML = `
                     <td><strong>${os.numeroOS}</strong></td>
-                    <td>${os.cliente}</td>
+                    <td>${os.clienteNome || os.cliente}</td>
                     <td>
                         <div class="aparelho-info">
                             <div class="aparelho-icon">📱</div>
@@ -590,7 +491,15 @@
                         </div>
                     </td>
                     <td class="problema-cell">${os.problemaRelatado.substring(0, 50)}${os.problemaRelatado.length > 50 ? '...' : ''}</td>
-                    <td><span class="status-badge ${os.status}">${getStatusText(os.status)}</span></td>
+                    <td>
+                        <select class="status-select" onchange="mudarStatusOS('${os.id}', this.value)" data-os-id="${os.id}">
+                            <option value="aguardando" ${os.status === 'aguardando' ? 'selected' : ''}>Aguardando</option>
+                            <option value="em_reparo" ${os.status === 'em_reparo' ? 'selected' : ''}>Em Reparo</option>
+                            <option value="pronto" ${os.status === 'pronto' ? 'selected' : ''}>Pronto</option>
+                            <option value="entregue" ${os.status === 'entregue' ? 'selected' : ''}>Entregue</option>
+                            <option value="cancelado" ${os.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                        </select>
+                    </td>
                     <td><span class="prioridade-badge ${os.prioridade}">${getPrioridadeText(os.prioridade)}</span></td>
                     <td>${formatarData(os.dataCriacao)}</td>
                     <td class="${atrasada ? 'atrasada' : ''}">${formatarData(prazoLimite)}</td>
@@ -758,10 +667,10 @@
         function carregarClientesSelect() {
             const selectCliente = document.getElementById('cliente');
             selectCliente.innerHTML = '<option value="">Selecione o cliente...</option>';
-            
+
             clientesEmMemoria.forEach(cliente => {
                 const option = document.createElement('option');
-                option.value = cliente.nome;
+                option.value = cliente.id;  // Usar ID como valor
                 option.textContent = cliente.nome;
                 selectCliente.appendChild(option);
             });
@@ -771,10 +680,14 @@
         // FUNÇÕES DE MODAL
         // ============================
 
+        // ============================
+        // FUNÇÕES GLOBAIS (disponíveis para onclick)
+        // ============================
+
         /**
-         * Abre modal para nova OS ou edição
+         * Abre modal para nova OS ou edição (função global)
          */
-        function abrirModal(tipo, osId = null) {
+        window.abrirModal = function(tipo, osId = null) {
             const modal = document.getElementById('modalOS');
             const modalTitle = document.getElementById('modalTitle');
             const form = document.getElementById('formOS');
@@ -784,7 +697,7 @@
                 modalTitle.textContent = 'Nova Ordem de Serviço';
                 form.reset();
                 document.getElementById('osId').value = '';
-                document.getElementById('numeroOS').value = gerarProximoNumeroOS();
+                document.getElementById('numeroOS').value = 'Será gerado automaticamente';
                 submitBtn.textContent = 'Criar O.S';
             } else if (tipo === 'editarOS' && osId) {
                 const os = buscarOSPorId(osId);
@@ -817,7 +730,7 @@
             document.getElementById('osId').value = os.id;
             document.getElementById('numeroOS').value = os.numeroOS;
             document.getElementById('prioridade').value = os.prioridade || 'normal';
-            document.getElementById('cliente').value = os.cliente;
+            document.getElementById('cliente').value = os.clienteId; // Usar ID do cliente
             document.getElementById('tipoAparelho').value = os.tipoAparelho;
             document.getElementById('marcaModelo').value = os.marcaModelo;
             document.getElementById('imeiSerial').value = os.imeiSerial || '';
@@ -863,7 +776,7 @@
                     <div class="os-details-grid">
                         <div class="detail-item">
                             <label>Cliente:</label>
-                            <span>${os.cliente}</span>
+                            <span>${os.clienteNome}</span>
                         </div>
                         <div class="detail-item">
                             <label>Tipo de Aparelho:</label>
@@ -942,17 +855,85 @@
         /**
          * Exclui OS
          */
-        function excluirOS(id) {
+        async function excluirOS(id) {
             const os = buscarOSPorId(id);
             if (!os) return;
 
             if (confirm(`Tem certeza que deseja excluir a O.S "${os.numeroOS}"?\n\nEsta ação não pode ser desfeita.`)) {
                 if (removerOS(id)) {
                     alert('O.S excluída com sucesso!');
+                    // Recarrega dados da API para garantir sincronização
+                    await carregarOS();
                     aplicarFiltros();
                     atualizarEstatisticas();
                 } else {
                     alert('Erro ao excluir O.S. Tente novamente.');
+                }
+            }
+        }
+
+        /**
+         * Muda o status de uma OS
+         */
+        async function mudarStatusOS(osId, novoStatus) {
+            const os = buscarOSPorId(osId);
+            if (!os) {
+                console.error('OS não encontrada:', osId);
+                return;
+            }
+
+            // Confirmação para status críticos
+            if (novoStatus === 'cancelado') {
+                const confirmado = confirm(`Tem certeza que deseja CANCELAR a O.S "${os.numeroOS}"?\n\nEsta ação marcará a OS como cancelada.`);
+                if (!confirmado) {
+                    // Reverte o select para o status anterior
+                    const select = document.querySelector(`select[data-os-id="${osId}"]`);
+                    if (select) {
+                        select.value = os.status;
+                    }
+                    return;
+                }
+            }
+
+            try {
+                // Desabilita o select durante a atualização
+                const select = document.querySelector(`select[data-os-id="${osId}"]`);
+                if (select) {
+                    select.disabled = true;
+                }
+
+                // Atualiza via API
+                await atualizarOSApi(osId, { status: novoStatus });
+
+                // Recarrega dados da API para garantir sincronização
+                await carregarOS();
+
+                // Atualiza estatísticas e filtros
+                atualizarEstatisticas();
+                aplicarFiltros();
+
+                // Atualiza notificações se disponível
+                if (window.notificationManager) {
+                    window.notificationManager.atualizarContador();
+                }
+
+                console.log(`✅ Status da OS ${os.numeroOS} alterado para: ${getStatusText(novoStatus)}`);
+
+            } catch (error) {
+                console.error('❌ Erro ao alterar status:', error);
+
+                // Reverte o select para o status anterior
+                const select = document.querySelector(`select[data-os-id="${osId}"]`);
+                if (select) {
+                    select.value = os.status;
+                }
+
+                alert('Erro ao alterar o status da O.S. Tente novamente.');
+            } finally {
+                // Reabilita o select
+                const select = document.querySelector(`select[data-os-id="${osId}"]`);
+                if (select) {
+                    select.disabled = false;
                 }
             }
         }
@@ -988,154 +969,167 @@
         }
 
         // ============================
-        // EVENTOS
+        // EVENTOS (movidos para dentro do DOMContentLoaded)
         // ============================
-
-        // Evento de busca
-        searchInput.addEventListener('input', aplicarFiltros);
-
-        // Eventos de filtros
-        document.getElementById('filtroStatus').addEventListener('change', aplicarFiltros);
-        document.getElementById('filtroPrioridade').addEventListener('change', aplicarFiltros);
-
-        // Eventos de filtros de tempo
-        document.querySelectorAll('.filter-btn[data-filtro]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.filter-btn[data-filtro]').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                aplicarFiltros();
-            });
-        });
-
-        // Evento do formulário
-        document.getElementById('formOS').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-            const dados = Object.fromEntries(formData.entries());
-
-            // Validação
-            const validacao = validarFormularioOS(dados);
-            if (!validacao.valido) {
-                alert('Erro na validação:\n' + validacao.erros.join('\n'));
-                return;
-            }
-
-            const osId = document.getElementById('osId').value;
-
-            if (osId) {
-                // Atualizar OS existente
-                if (atualizarOS(osId, dados)) {
-                    alert('O.S atualizada com sucesso!');
-                    fecharModal();
-                    aplicarFiltros();
-                    atualizarEstatisticas();
-                } else {
-                    alert('Erro ao atualizar O.S. Tente novamente.');
-                }
-            } else {
-                // Adicionar nova OS
-                if (adicionarOS(dados)) {
-                    alert('O.S criada com sucesso!');
-                    fecharModal();
-                    aplicarFiltros();
-                    atualizarEstatisticas();
-                } else {
-                    alert('Erro ao criar O.S. Tente novamente.');
-                }
-            }
-        });
-
-        // Formatação automática de campos
-        document.getElementById('valorOrcamento').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            value = (parseInt(value) / 100).toFixed(2);
-            value = value.replace('.', ',');
-            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-            e.target.value = 'R$ ' + value;
-        });
-
-        // Fechar modal ao clicar fora
-        document.querySelectorAll('.modal').forEach(modal => {
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    fecharModal();
-                }
-            });
-        });
-
-       // Toggle sidebar (mobile e desktop)
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            const sidebarEl = document.getElementById('sidebar');
-            const isMobile = window.matchMedia('(max-width: 768px)').matches;
-
-            if (isMobile) {
-                // Usar o comportamento mobile já suportado pelo CSS
-                sidebarEl.classList.toggle('active');
-                return;
-            }
-
-            // Desktop: recolhe/expande alterando width via estilo inline (sem precisar mexer no CSS global)
-            // Inicialização única de propriedades para transição suave
-            if (!sidebarEl.dataset.desktopInit) {
-                sidebarEl.style.overflow = 'hidden';
-                sidebarEl.style.transition = 'width 0.25s ease';
-                sidebarEl.dataset.desktopInit = 'true';
-            }
-
-            const isCollapsed = sidebarEl.style.width === '0px';
-            if (isCollapsed) {
-                // expandir
-                sidebarEl.style.width = '230px';
-                } else {
-                // recolher
-                // largura padrão da sidebar no CSS é 230px; ao recolher, usamos 0
-                sidebarEl.style.width = '0px';
-            }
-        });
-
-        // Navegação do menu
-        document.querySelectorAll('.sidebar-menu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Remove active de todos os links
-                document.querySelectorAll('.sidebar-menu a').forEach(l => {
-                    l.classList.remove('active');
-                });
-                
-                // Adiciona active no link clicado
-                this.classList.add('active');
-                
-                // Fecha sidebar no mobile após clicar
-                if (window.innerWidth <= 768) {
-                    document.getElementById('sidebar').classList.remove('active');
-                }
-                
-                // Deixa o navegador fazer a navegação normalmente
-                console.log('Navegando para:', this.getAttribute('href'));
-            });
-        });
 
         // ============================
         // INICIALIZAÇÃO
         // ============================
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             // Protege a página
             protegerPagina();
-            
+
             // Atualiza informações do usuário
             atualizarInfoUsuario();
-            
+
+            // Define elementos do DOM (agora que estão disponíveis)
+            searchInput = document.getElementById('searchInput');
+            osTableBody = document.getElementById('osTableBody');
+            pagination = document.getElementById('pagination');
+            totalOS = document.getElementById('totalOS');
+            osAguardando = document.getElementById('osAguardando');
+            osEmReparo = document.getElementById('osEmReparo');
+            osAtrasadas = document.getElementById('osAtrasadas');
+            resultadosInfo = document.getElementById('resultadosInfo');
+
             // Carrega dados
-            carregarOS();
-            carregarClientes();
-            
+            console.log('🔄 Carregando dados iniciais...');
+            await carregarOS();
+            await carregarClientes();
+            console.log('✅ Dados carregados - OS:', osEmMemoria.length, 'Clientes:', clientesEmMemoria.length);
+
             // Aplica filtros iniciais
             aplicarFiltros();
             atualizarEstatisticas();
-            
+
+            // Configura event listeners (agora que os elementos existem)
+            configurarEventListeners();
+
             console.log('✅ Página de O.S carregada!');
         });
+
+        /**
+         * Configura todos os event listeners da página
+         */
+        async function configurarEventListeners() {
+            // Evento de busca
+            if (searchInput) {
+                searchInput.addEventListener('input', aplicarFiltros);
+            }
+
+            // Eventos de filtros
+            const filtroStatus = document.getElementById('filtroStatus');
+            if (filtroStatus) {
+                filtroStatus.addEventListener('change', aplicarFiltros);
+            }
+
+            const filtroPrioridade = document.getElementById('filtroPrioridade');
+            if (filtroPrioridade) {
+                filtroPrioridade.addEventListener('change', aplicarFiltros);
+            }
+
+            // Eventos de filtros de tempo
+            document.querySelectorAll('.filter-btn[data-filtro]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn[data-filtro]').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    aplicarFiltros();
+                });
+            });
+
+            // Evento do formulário
+            const formOS = document.getElementById('formOS');
+            if (formOS) {
+                formOS.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const formData = new FormData(this);
+                    const dados = Object.fromEntries(formData.entries());
+
+                    // Processar campos especiais antes da validação
+                    if (dados.valorOrcamento) {
+                        // Converter "R$ 9,99" para 9.99
+                        dados.valorOrcamento = dados.valorOrcamento
+                            .replace('R$ ', '') // Remove "R$ "
+                            .replace('.', '') // Remove pontos de milhares
+                            .replace(',', '.'); // Converte vírgula para ponto
+                        dados.valorOrcamento = parseFloat(dados.valorOrcamento) || 0;
+                    }
+
+                    // Validação
+                    const validacao = validarFormularioOS(dados);
+                    if (!validacao.valido) {
+                        alert('Erro na validação:\n' + validacao.erros.join('\n'));
+                        return;
+                    }
+
+                    const osId = document.getElementById('osId').value;
+
+                    console.log('📝 Processando formulário - osId:', osId, 'dados:', dados);
+
+                    if (osId) {
+                        console.log('🔄 Atualizando OS existente:', osId);
+                        // Atualizar OS existente
+                        if (atualizarOS(osId, dados)) {
+                            alert('O.S atualizada com sucesso!');
+
+                            // Atualiza notificações se disponível
+                            if (window.notificationManager) {
+                                window.notificationManager.atualizarContador();
+                            }
+
+                            fecharModal();
+                            aplicarFiltros();
+                            atualizarEstatisticas();
+                        } else {
+                            alert('Erro ao atualizar O.S. Tente novamente.');
+                        }
+                    } else {
+                        console.log('➕ Criando nova OS');
+                        // Adicionar nova OS
+                        const resultado = await adicionarOS(dados);
+                        console.log('Resultado da criação:', resultado);
+
+                        if (resultado) {
+                            alert('O.S criada com sucesso!');
+                            fecharModal();
+
+                            console.log('🔄 Recarregando dados da API...');
+                            // Recarrega dados da API e reaplica filtros
+                            await carregarOS();
+                            console.log('✅ Dados recarregados - Total OS:', osEmMemoria.length);
+
+                            aplicarFiltros();
+                            atualizarEstatisticas();
+                        } else {
+                            alert('Erro ao criar O.S. Tente novamente.');
+                        }
+                    }
+                });
+            }
+
+            // Formatação automática de campos
+            const valorOrcamento = document.getElementById('valorOrcamento');
+            if (valorOrcamento) {
+                valorOrcamento.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = (parseInt(value) / 100).toFixed(2);
+                    value = value.replace('.', ',');
+                    value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                    e.target.value = 'R$ ' + value;
+                });
+            }
+
+            // Fechar modal ao clicar fora
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        fecharModal();
+                    }
+                });
+            });
+        }
     </script>
 
     <style>
@@ -1431,30 +1425,89 @@
             opacity: 0.8;
         }
 
+        .status-select {
+            padding: 6px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--gray-dark);
+            cursor: pointer;
+            min-width: 110px;
+            transition: all 0.2s ease;
+        }
+
+        .status-select:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .status-select:hover {
+            border-color: #9ca3af;
+        }
+
+        .status-select:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: #f9fafb;
+        }
+
+        /* Estilizar as opções do select para parecer com badges */
+        .status-select option[value="aguardando"] {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-select option[value="em_reparo"] {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .status-select option[value="pronto"] {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-select option[value="entregue"] {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .status-select option[value="cancelado"] {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
+
             .filters-section {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .filter-controls {
                 justify-content: center;
             }
-            
+
             .os-table {
                 font-size: 12px;
             }
-            
+
             .os-table th,
             .os-table td {
                 padding: 8px;
             }
+
+            .status-select {
+                min-width: 90px;
+                font-size: 11px;
+                padding: 4px 6px;
+            }
         }
     </style>
-</body>
-
-</html>
+{% endblock %}

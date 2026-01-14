@@ -3,9 +3,6 @@
 // ========================================
 // Este arquivo contém todas as funções relacionadas ao módulo de estoque
 
-// Chave para armazenar produtos no localStorage
-const CHAVE_PRODUTOS = 'ia_sistem_produtos';
-
 // Array que mantém os produtos em memória durante a sessão
 let produtosEmMemoria = [];
 
@@ -20,88 +17,110 @@ const itensPorPagina = 10;
 // ============================
 
 /**
- * Carrega todos os produtos do localStorage
+ * Carrega todos os produtos da API
+ * @returns {Promise<Array>} Array de produtos
  */
-function carregarProdutos() {
-    const produtos = recuperarDados(CHAVE_PRODUTOS);
-    produtosEmMemoria = produtos || [];
+async function carregarProdutos() {
+    try {
+        const produtos = await listarProdutosApi();
+        produtosEmMemoria = produtos || [];
+    } catch (e) {
+        produtosEmMemoria = [];
+    }
     return produtosEmMemoria;
 }
 
 /**
- * Salva todos os produtos no localStorage
+ * Adiciona um novo produto via API
+ * @param {object} produto - Dados do produto
+ * @returns {Promise<object>} Produto criado com ID
  */
-function salvarProdutos() {
-    return salvarDados(CHAVE_PRODUTOS, produtosEmMemoria);
+async function adicionarProduto(produto) {
+    try {
+        // Prepara dados para API
+        const dadosApi = {
+            nome: produto.nome,
+            categoria: produto.categoria,
+            codigo: produto.codigo || gerarCodigoProduto(),
+            descricao: produto.descricao || null,
+            quantidade: parseInt(produto.quantidade) || 0,
+            estoqueMinimo: parseInt(produto.estoqueMinimo) || 0,
+            precoCusto: parseFloat(produto.precoCusto?.replace(/[^\d,]/g, '').replace(',', '.')) || 0,
+            precoVenda: parseFloat(produto.precoVenda?.replace(/[^\d,]/g, '').replace(',', '.')) || 0,
+            fornecedor: produto.fornecedor || null,
+            localizacao: produto.localizacao || null,
+        };
+
+        const criado = await criarProdutoApi(dadosApi);
+        produtosEmMemoria.push(criado);
+
+        console.log('✅ Produto adicionado:', criado.nome);
+        return criado;
+    } catch (e) {
+        console.error('❌ Erro ao adicionar produto:', e);
+        // Re-lança o erro para que o código que chama possa tratar
+        throw e;
+    }
 }
 
 /**
- * Adiciona um novo produto
+ * Atualiza um produto existente via API
+ * @param {string|number} id - ID do produto
+ * @param {object} dadosAtualizados - Novos dados do produto
+ * @returns {Promise<boolean>} true se atualizou com sucesso
  */
-function adicionarProduto(produto) {
-    // Gera ID único para o produto
-    produto.id = gerarId();
-    produto.codigo = produto.codigo || gerarCodigoProduto();
-    produto.dataCadastro = new Date().toISOString();
-    produto.dataAtualizacao = new Date().toISOString();
-    produto.quantidade = parseInt(produto.quantidade) || 0;
-    produto.estoqueMinimo = parseInt(produto.estoqueMinimo) || 0;
-    produto.precoCusto = parseFloat(produto.precoCusto?.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-    produto.precoVenda = parseFloat(produto.precoVenda?.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-    
-    // Adiciona ao array
-    produtosEmMemoria.push(produto);
-    
-    // Salva no localStorage
-    salvarProdutos();
-    
-    console.log('✅ Produto adicionado:', produto.nome);
-    return produto;
+async function atualizarProduto(id, dadosAtualizados) {
+    const indice = produtosEmMemoria.findIndex(p => p.id === parseInt(id));
+
+    if (indice === -1) {
+        console.error('❌ Produto não encontrado:', id);
+        throw new Error('Produto não encontrado');
+    }
+
+    try {
+        // Prepara dados para API (sem ID, timestamps)
+        const dadosApi = {
+            nome: dadosAtualizados.nome,
+            categoria: dadosAtualizados.categoria,
+            codigo: dadosAtualizados.codigo,
+            descricao: dadosAtualizados.descricao || null,
+            quantidade: parseInt(dadosAtualizados.quantidade) || 0,
+            estoqueMinimo: parseInt(dadosAtualizados.estoqueMinimo) || 0,
+            precoCusto: parseFloat(dadosAtualizados.precoCusto?.replace(/[^\d,]/g, '').replace(',', '.')) || 0,
+            precoVenda: parseFloat(dadosAtualizados.precoVenda?.replace(/[^\d,]/g, '').replace(',', '.')) || 0,
+            fornecedor: dadosAtualizados.fornecedor || null,
+            localizacao: dadosAtualizados.localizacao || null,
+        };
+
+        const atualizado = await atualizarProdutoApi(id, dadosApi);
+        produtosEmMemoria[indice] = atualizado;
+
+        console.log('✅ Produto atualizado:', atualizado.nome);
+        return true;
+    } catch (e) {
+        console.error('❌ Erro ao atualizar produto:', e);
+        // Re-lança o erro para que o código que chama possa tratar
+        throw e;
+    }
 }
 
 /**
- * Atualiza um produto existente
+ * Remove um produto via API
+ * @param {string|number} id - ID do produto
+ * @returns {Promise<boolean>} true se removeu com sucesso
  */
-function atualizarProduto(id, dadosAtualizados) {
-    const indice = produtosEmMemoria.findIndex(p => p.id === id);
-    
+async function removerProduto(id) {
+    const indice = produtosEmMemoria.findIndex(p => p.id === parseInt(id));
+
     if (indice === -1) {
         console.error('❌ Produto não encontrado:', id);
         return false;
     }
-    
-    // Mantém ID e data de cadastro, atualiza o resto
-    dadosAtualizados.id = id;
-    dadosAtualizados.codigo = produtosEmMemoria[indice].codigo;
-    dadosAtualizados.dataCadastro = produtosEmMemoria[indice].dataCadastro;
-    dadosAtualizados.dataAtualizacao = new Date().toISOString();
-    dadosAtualizados.quantidade = parseInt(dadosAtualizados.quantidade) || 0;
-    dadosAtualizados.estoqueMinimo = parseInt(dadosAtualizados.estoqueMinimo) || 0;
-    dadosAtualizados.precoCusto = parseFloat(dadosAtualizados.precoCusto?.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-    dadosAtualizados.precoVenda = parseFloat(dadosAtualizados.precoVenda?.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-    
-    produtosEmMemoria[indice] = dadosAtualizados;
-    salvarProdutos();
-    
-    console.log('✅ Produto atualizado:', dadosAtualizados.nome);
-    return true;
-}
 
-/**
- * Remove um produto
- */
-function removerProduto(id) {
-    const indice = produtosEmMemoria.findIndex(p => p.id === id);
-    
-    if (indice === -1) {
-        console.error('❌ Produto não encontrado:', id);
-        return false;
-    }
-    
     const nomeProduto = produtosEmMemoria[indice].nome;
+    await deletarProdutoApi(id);
     produtosEmMemoria.splice(indice, 1);
-    salvarProdutos();
-    
+
     console.log('✅ Produto removido:', nomeProduto);
     return true;
 }
@@ -110,7 +129,7 @@ function removerProduto(id) {
  * Busca um produto por ID
  */
 function buscarProdutoPorId(id) {
-    return produtosEmMemoria.find(p => p.id === id) || null;
+    return produtosEmMemoria.find(p => p.id === parseInt(id)) || null;
 }
 
 /**
@@ -561,16 +580,18 @@ function editarProdutoAtual() {
 /**
  * Exclui produto
  */
-function excluirProduto(id) {
+async function excluirProduto(id) {
     const produto = buscarProdutoPorId(id);
     if (!produto) return;
 
     if (confirm(`Tem certeza que deseja excluir o produto "${produto.nome}"?\n\nEsta ação não pode ser desfeita.`)) {
-        if (removerProduto(id)) {
+        try {
+            await removerProduto(id);
             alert('Produto excluído com sucesso!');
+            await carregarProdutos(); // Recarrega produtos após exclusão
             aplicarFiltros();
             atualizarEstatisticas();
-        } else {
+        } catch (e) {
             alert('Erro ao excluir produto. Tente novamente.');
         }
     }
@@ -606,11 +627,63 @@ function exportarProdutos() {
 }
 
 // ============================
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO (agora chamada apenas pelo template)
 // ============================
 
-// Carrega produtos ao iniciar
-carregarProdutos();
-console.log('✅ estoque.js carregado com sucesso!');
-console.log('📊 Total de produtos:', produtosEmMemoria.length);
+/**
+ * Inicializa o módulo de estoque - deve ser chamada apenas após o DOM estar carregado
+ */
+async function initEstoque() {
+    await carregarProdutos();
+    aplicarFiltros();
+    atualizarEstatisticas();
+    console.log('✅ estoque.js carregado com sucesso!');
+    console.log('📊 Total de produtos:', produtosEmMemoria.length);
+}
 
+// ============================
+// EVENTOS
+// ============================
+
+// Evento de submit do formulário de produto
+document.addEventListener('DOMContentLoaded', function() {
+    const formProduto = document.getElementById('formProduto');
+    if (formProduto) {
+        formProduto.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const dados = Object.fromEntries(formData.entries());
+
+            // Validação
+            const validacao = validarFormularioProduto(dados);
+            if (!validacao.valido) {
+                alert('Erro na validação:\n' + validacao.erros.join('\n'));
+                return;
+            }
+
+            const produtoId = document.getElementById('produtoId').value;
+
+            try {
+                if (produtoId) {
+                    // Atualizar produto existente
+                    await atualizarProduto(produtoId, dados);
+                    alert('Produto atualizado com sucesso!');
+                } else {
+                    // Adicionar novo produto
+                    await adicionarProduto(dados);
+                    alert('Produto cadastrado com sucesso!');
+                }
+                fecharModal();
+                await carregarProdutos(); // Recarrega produtos após operação
+                aplicarFiltros();
+                atualizarEstatisticas();
+            } catch (e) {
+                // Exibe a mensagem de erro do backend se disponível
+                const mensagemErro = e.message || 'Erro ao processar a solicitação. Tente novamente.';
+                alert('❌ Erro: ' + mensagemErro);
+                console.error('Erro ao salvar produto:', e);
+            }
+        });
+    }
+});

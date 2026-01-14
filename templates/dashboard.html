@@ -1,0 +1,717 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IA SISTEM{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1 style="color: #FFFFFF;">Dashboard</h1>
+        <div class="breadcrumb" style="color:#fef3c7">Dashboard</div>
+    </div>
+
+    <!-- CARDS DE ESTATÍSTICAS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                📋
+            </div>
+            <div class="stat-info">
+                <h3 id="totalOS">0</h3>
+                <p>Total de O.S</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                👥
+            </div>
+            <div class="stat-info">
+                <h3 id="totalClientes">0</h3>
+                <p>Clientes</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                📦
+            </div>
+            <div class="stat-info">
+                <h3 id="totalProdutos">0</h3>
+                <p>Produtos</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon red">
+                ⚠️
+            </div>
+            <div class="stat-info">
+                <h3 id="alertas">0</h3>
+                <p>Alertas</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AÇÕES RÁPIDAS -->
+    <div class="quick-actions">
+        <div class="action-card" onclick="window.location.href='/atendimento'">
+            <div class="action-card-icon">⚙️</div>
+            <h3>Atendimento</h3>
+            <p>Centro de operações diárias</p>
+        </div>
+
+        <div class="action-card" onclick="window.location.href='/os'">
+            <div class="action-card-icon">📋</div>
+            <h3>Ordens de Serviço</h3>
+            <p>Gerenciar todas as OS</p>
+        </div>
+
+        <div class="action-card" onclick="window.location.href='/clientes'">
+            <div class="action-card-icon">👤</div>
+            <h3>Clientes</h3>
+            <p>Cadastrar e buscar clientes</p>
+        </div>
+
+        <div class="action-card" onclick="window.location.href='/estoque'">
+            <div class="action-card-icon">📦</div>
+            <h3>Estoque</h3>
+            <p>Controlar produtos e peças</p>
+        </div>
+    </div>
+
+    <!-- ALERTAS E NOTIFICAÇÕES -->
+    <div class="alerts-section">
+        <h2>Alertas e Notificações</h2>
+        <div id="alertasContainer">
+            <!-- Alertas serão inseridos via JavaScript -->
+        </div>
+    </div>
+
+    <!-- VISÃO GERAL RECENTE -->
+    <div class="overview-section">
+        <div class="overview-grid">
+            <!-- OS RECENTES -->
+            <div class="overview-card">
+                <div class="card-header">
+                    <h3>Ordens de Serviço Recentes</h3>
+                    <a href="/os" class="view-all">Ver todas →</a>
+                </div>
+                <div id="recentOS">
+                    <!-- OS recentes serão inseridas via JavaScript -->
+                </div>
+            </div>
+
+            <!-- CLIENTES RECENTES -->
+            <div class="overview-card">
+                <div class="card-header">
+                    <h3>Clientes Recentes</h3>
+                    <a href="/clientes" class="view-all">Ver todos →</a>
+                </div>
+                <div id="recentClientes">
+                    <!-- Clientes recentes serão inseridos via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+    <script src="/js/clientes.js"></script>
+    <script src="/js/estoque.js"></script>
+
+    <script>
+        // ========================================
+        // SCRIPT DA PÁGINA DE DASHBOARD
+        // ========================================
+
+        // Elementos do DOM (serão definidos dentro do DOMContentLoaded)
+        let alertasContainer, totalOS, totalClientes, totalProdutos, alertas, notificationCount;
+
+        // ============================
+        // FUNÇÕES DE CARREGAMENTO DE DADOS
+        // ============================
+
+        /**
+         * Carrega todas as OS da API
+         */
+        async function carregarOS() {
+            try {
+                const os = await listarOSApi();
+                osEmMemoria = os || [];
+                console.log('✅ OS carregadas no dashboard:', osEmMemoria.length);
+                return osEmMemoria;
+            } catch (e) {
+                console.error('❌ Erro ao carregar OS no dashboard:', e);
+                osEmMemoria = [];
+                return osEmMemoria;
+            }
+        }
+
+        /**
+         * Carrega todos os clientes da API
+         */
+        async function carregarClientes() {
+            try {
+                const clientes = await listarClientesApi();
+                clientesEmMemoria = clientes || [];
+                console.log('✅ Clientes carregados no dashboard:', clientesEmMemoria.length);
+                return clientesEmMemoria;
+            } catch (e) {
+                console.error('❌ Erro ao carregar clientes no dashboard:', e);
+                clientesEmMemoria = [];
+                return clientesEmMemoria;
+            }
+        }
+
+        /**
+         * Carrega todos os produtos da API
+         */
+        async function carregarProdutos() {
+            try {
+                const produtos = await listarProdutosApi();
+                produtosEmMemoria = produtos || [];
+                console.log('✅ Produtos carregados no dashboard:', produtosEmMemoria.length);
+                return produtosEmMemoria;
+            } catch (e) {
+                console.error('❌ Erro ao carregar produtos no dashboard:', e);
+                produtosEmMemoria = [];
+                return produtosEmMemoria;
+            }
+        }
+
+        /**
+         * Calcula status do estoque
+         */
+        function calcularStatusEstoque(quantidade, minimo) {
+            if (quantidade <= 0) return 'sem_estoque';
+            if (quantidade <= minimo) return 'critico';
+            if (quantidade <= minimo * 1.5) return 'baixo';
+            return 'ok';
+        }
+
+        // ============================
+        // FUNÇÕES DE INTERFACE
+        // ============================
+
+        /**
+         * Atualiza as estatísticas na tela
+         */
+        function atualizarEstatisticas() {
+            const totalOSCount = osEmMemoria.length;
+            const totalClientesCount = clientesEmMemoria.length;
+            const totalProdutosCount = produtosEmMemoria.length;
+
+            // Calcula alertas (OS atrasadas + estoque baixo)
+            const hoje = new Date();
+            const osAtrasadas = osEmMemoria.filter(os => {
+                if (os.status === 'entregue' || os.status === 'cancelado') return false;
+                const dataCriacao = new Date(os.dataCriacao);
+                const prazoLimite = new Date(dataCriacao);
+                prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+                return hoje > prazoLimite;
+            }).length;
+
+            const estoqueBaixo = produtosEmMemoria.filter(p => {
+                const status = calcularStatusEstoque(p.quantidade, p.estoqueMinimo);
+                return status === 'critico' || status === 'baixo';
+            }).length;
+
+            const totalAlertas = osAtrasadas + estoqueBaixo;
+
+            totalOS.textContent = totalOSCount;
+            totalClientes.textContent = totalClientesCount;
+            totalProdutos.textContent = totalProdutosCount;
+            alertas.textContent = totalAlertas;
+            notificationCount.textContent = totalAlertas;
+        }
+
+        /**
+         * Renderiza OS recentes
+         */
+        function renderizarOSRecentes() {
+            const osRecentes = osEmMemoria
+                .sort((a, b) => new Date(b.dataCriacao) - new Date(a.dataCriacao))
+                .slice(0, 5); // Mostra apenas as 5 mais recentes
+
+            const recentOS = document.getElementById('recentOS');
+
+            if (osRecentes.length === 0) {
+                recentOS.innerHTML = '<p class="empty-state">Nenhuma OS encontrada</p>';
+                return;
+            }
+
+            recentOS.innerHTML = '';
+
+            osRecentes.forEach(os => {
+                const item = document.createElement('div');
+                item.className = 'recent-item';
+                item.innerHTML = `
+                    <div class="recent-info">
+                        <strong>${os.numeroOS}</strong>
+                        <span>${os.clienteNome}</span>
+                    </div>
+                    <span class="status-badge ${os.status}">${getStatusText(os.status)}</span>
+                `;
+                item.onclick = () => window.location.href = `/os#view=${os.id}`;
+                recentOS.appendChild(item);
+            });
+        }
+
+        /**
+         * Renderiza clientes recentes
+         */
+        function renderizarClientesRecentes() {
+            const clientesRecentes = clientesEmMemoria
+                .sort((a, b) => new Date(b.dataCadastro || b.criadoEm) - new Date(a.dataCadastro || a.criadoEm))
+                .slice(0, 5); // Mostra apenas os 5 mais recentes
+
+            const recentClientes = document.getElementById('recentClientes');
+
+            if (clientesRecentes.length === 0) {
+                recentClientes.innerHTML = '<p class="empty-state">Nenhum cliente encontrado</p>';
+                return;
+            }
+
+            recentClientes.innerHTML = '';
+
+            clientesRecentes.forEach(cliente => {
+                const item = document.createElement('div');
+                item.className = 'recent-item';
+                item.innerHTML = `
+                    <div class="recent-info">
+                        <div class="client-avatar">${cliente.nome.charAt(0).toUpperCase()}</div>
+                        <div>
+                            <strong>${cliente.nome}</strong>
+                            <span>${cliente.telefone || 'Sem telefone'}</span>
+                        </div>
+                    </div>
+                `;
+                item.onclick = () => window.location.href = `/clientes#view=${cliente.id}`;
+                recentClientes.appendChild(item);
+            });
+        }
+
+        /**
+         * Renderiza os alertas
+         */
+        function renderizarAlertas() {
+            const hoje = new Date();
+            const alertasList = [];
+
+            // OS atrasadas
+            const osAtrasadas = osEmMemoria.filter(os => {
+                if (os.status === 'entregue' || os.status === 'cancelado') return false;
+                const dataCriacao = new Date(os.dataCriacao);
+                const prazoLimite = new Date(dataCriacao);
+                prazoLimite.setDate(prazoLimite.getDate() + (os.prazoEstimado || 3));
+                return hoje > prazoLimite;
+            });
+
+            osAtrasadas.forEach(os => {
+                alertasList.push({
+                    tipo: 'urgent',
+                    titulo: `${os.numeroOS} - Cliente aguardando retorno`,
+                    descricao: `${os.clienteNome} - Prazo vencido`,
+                    acao: () => window.location.href = `/os#view=${os.id}`
+                });
+            });
+
+            // Estoque baixo
+            const estoqueBaixo = produtosEmMemoria.filter(p => {
+                const status = calcularStatusEstoque(p.quantidade, p.estoqueMinimo);
+                return status === 'critico';
+            });
+
+            estoqueBaixo.forEach(produto => {
+                alertasList.push({
+                    tipo: 'critical',
+                    titulo: `${produto.nome} - Estoque Crítico`,
+                    descricao: `Apenas ${produto.quantidade} unidades disponíveis`,
+                    acao: () => window.location.href = '/estoque'
+                });
+            });
+
+            // OS prontas para retirada
+            const osProntas = osEmMemoria.filter(os => os.status === 'pronto');
+            if (osProntas.length > 0) {
+                alertasList.push({
+                    tipo: 'info',
+                    titulo: `${osProntas.length} aparelhos prontos para retirada`,
+                    descricao: 'Clientes aguardando contato',
+                    acao: () => window.location.href = '/os'
+                });
+            }
+
+            alertasContainer.innerHTML = '';
+
+            if (alertasList.length === 0) {
+                alertasContainer.innerHTML = `
+                    <div class="alert-item info">
+                        <div class="alert-content">
+                            <strong>🎉 Tudo funcionando normalmente!</strong>
+                            <span>Não há alertas pendentes no momento.</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            alertasList.slice(0, 5).forEach(alerta => { // Mostra apenas os 5 primeiros
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert-item ${alerta.tipo}`;
+                alertDiv.innerHTML = `
+                    <div class="alert-content">
+                        <strong>${alerta.titulo}</strong>
+                        <span>${alerta.descricao}</span>
+                    </div>
+                    <button class="alert-action" onclick="(${alerta.acao.toString()})()">Ver Detalhes</button>
+                `;
+                alertasContainer.appendChild(alertDiv);
+            });
+        }
+
+        /**
+         * Retorna texto do status
+         */
+        function getStatusText(status) {
+            const statusMap = {
+                'aguardando': 'Aguardando',
+                'em_reparo': 'Em Reparo',
+                'pronto': 'Pronto',
+                'entregue': 'Entregue',
+                'cancelado': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+
+        // ============================
+        // INICIALIZAÇÃO
+        // ============================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Protege a página
+            protegerPagina();
+
+            // Atualiza informações do usuário
+            atualizarInfoUsuario();
+
+            // Define elementos do DOM (agora que estão disponíveis)
+            alertasContainer = document.getElementById('alertasContainer');
+            totalOS = document.getElementById('totalOS');
+            totalClientes = document.getElementById('totalClientes');
+            totalProdutos = document.getElementById('totalProdutos');
+            alertas = document.getElementById('alertas');
+            notificationCount = document.getElementById('notificationCount');
+
+            // Carrega dados (espera pelas chamadas assíncronas)
+            await carregarOS();
+            await carregarClientes();
+            await carregarProdutos();
+
+            // Renderiza interface após os dados serem carregados
+            renderizarOSRecentes();
+            renderizarClientesRecentes();
+            renderizarAlertas();
+            atualizarEstatisticas();
+
+            console.log('✅ Dashboard carregado!');
+            console.log('📊 Dados carregados - OS:', osEmMemoria.length, 'Clientes:', clientesEmMemoria.length, 'Produtos:', produtosEmMemoria.length);
+        });
+    </script>
+
+    <style>
+        /* Estilos específicos para o dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .stat-icon.blue { background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #1e3a8a; }
+        .stat-icon.green { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #065f46; }
+        .stat-icon.yellow { background: linear-gradient(135deg, #fef3c7, #fde68a); color: #92400e; }
+        .stat-icon.red { background: linear-gradient(135deg, #fee2e2, #fca5a5); color: #dc2626; }
+
+        .stat-info h3 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--dark-blue);
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .stat-info p {
+            color: var(--gray-medium);
+            margin: 8px 0 0 0;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+            border-color: var(--primary-blue);
+        }
+
+        .action-card-icon {
+            font-size: 32px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .action-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark-blue);
+            margin: 0 0 8px 0;
+        }
+
+        .action-card p {
+            color: var(--gray-medium);
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .alerts-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .alerts-section h2 {
+            color: var(--dark-blue);
+            margin: 0 0 20px 0;
+            font-size: 24px;
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+        }
+
+        .alert-item.urgent {
+            background: #fef2f2;
+            border-left-color: #dc2626;
+        }
+
+        .alert-item.critical {
+            background: #fef3c7;
+            border-left-color: #d97706;
+        }
+
+        .alert-item.info {
+            background: #eff6ff;
+            border-left-color: #2563eb;
+        }
+
+        .alert-content strong {
+            display: block;
+            color: var(--dark-blue);
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .alert-content span {
+            color: var(--gray-medium);
+            font-size: 13px;
+        }
+
+        .alert-action {
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .alert-action:hover {
+            background: var(--primary-blue-dark);
+        }
+
+        .overview-section {
+            margin-top: 40px;
+        }
+
+        .overview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+        }
+
+        .overview-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-header h3 {
+            color: var(--dark-blue);
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .view-all {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        .view-all:hover {
+            color: var(--primary-blue-dark);
+        }
+
+        .recent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .recent-item:hover {
+            background: #f9fafb;
+            border-color: var(--primary-blue);
+        }
+
+        .recent-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .recent-info strong {
+            color: var(--dark-blue);
+            font-size: 14px;
+        }
+
+        .recent-info span {
+            color: var(--gray-medium);
+            font-size: 13px;
+        }
+
+        .client-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-badge.aguardando {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.em_reparo {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .status-badge.pronto {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--gray-medium);
+            padding: 40px 20px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
