@@ -6,6 +6,7 @@ from extensions import db
 from models import Cliente, OrdemServico, Usuario
 from auth_utils import login_required
 from routes_notificacoes import criar_notificacao_os_pronta
+from ai_utils import gerar_pre_diagnostico, gerar_resumo
 
 bp = Blueprint("os", __name__)
 
@@ -62,9 +63,7 @@ def gerar_proximo_numero_os() -> str:
 @login_required
 def listar_os():
     ordens = (
-        OrdemServico.query.order_by(OrdemServico.criado_em.desc())
-        .join(Cliente)
-        .all()
+        OrdemServico.query.order_by(OrdemServico.criado_em.desc()).join(Cliente).all()
     )
     return jsonify([os_to_dict(o) for o in ordens])
 
@@ -105,6 +104,18 @@ def criar_os():
     )
 
     db.session.add(os_obj)
+
+    # Gerar resumo e pré-diagnóstico com IA
+    try:
+        resumo = gerar_resumo(os_obj.problema_relatado)
+        pre_diag = gerar_pre_diagnostico(
+            os_obj.tipo_aparelho, os_obj.marca_modelo, os_obj.problema_relatado
+        )
+        os_obj.diagnostico_tecnico = pre_diag
+        os_obj.observacoes = (os_obj.observacoes or "") + f"\n\nResumo: {resumo}"
+    except Exception as e:
+        print(f"Erro ao gerar conteúdo com IA: {e}")
+
     db.session.commit()
 
     return jsonify(os_to_dict(os_obj)), 201
@@ -166,6 +177,47 @@ def atualizar_os(os_id: int):
             db.session.rollback()  # Não afetar a atualização da OS
 
     return jsonify(os_to_dict(os_obj))
+
+
+@bp.post("/<int:os_id>/gerar-diagnostico")
+@login_required
+def gerar_diagnostico_ia(os_id: int):
+    os_obj = OrdemServico.query.get_or_404(os_id)
+
+    try:
+        pre_diag = gerar_pre_diagnostico(
+            os_obj.tipo_aparelho, os_obj.marca_modelo, os_obj.problema_relatado
+        )
+        os_obj.diagnostico_tecnico = pre_diag
+        db.session.commit()
+
+        return jsonify({"diagnostico": pre_diag}), 200
+    except Exception as e:
+        print(f"Erro ao gerar diagnóstico IA: {e}")
+        return jsonify({"erro": "Falha ao gerar diagnóstico"}), 500
+
+
+@bp.post("/gerar-diagnostico-parametros")
+@login_required
+def gerar_diagnostico_parametros():
+    data = request.get_json() or {}
+
+    tipo_aparelho = data.get("tipoAparelho")
+    marca_modelo = data.get("marcaModelo")
+    problema_relatado = data.get("problemaRelatado")
+
+    if not tipo_aparelho or not marca_modelo or not problema_relatado:
+        abort(
+            400,
+            description="Parâmetros obrigatórios: tipoAparelho, marcaModelo, problemaRelatado",
+        )
+
+    try:
+        pre_diag = gerar_pre_diagnostico(tipo_aparelho, marca_modelo, problema_relatado)
+        return jsonify({"diagnostico": pre_diag}), 200
+    except Exception as e:
+        print(f"Erro ao gerar diagnóstico IA com parâmetros: {e}")
+        return jsonify({"erro": "Falha ao gerar diagnóstico"}), 500
 
 
 @bp.delete("/<int:os_id>")
