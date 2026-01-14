@@ -5,11 +5,12 @@
 {% set active_page = 'dashboard' %}
 
 {% block content %}
-    <!-- HERO SECTION -->
+    <div class="dashboard-container">
+        <!-- HERO SECTION -->
     <div class="hero-section">
         <div class="hero-content">
             <div class="welcome-message">
-                <h1>🏠 Bem-vindo ao <span class="brand-highlight">TechAI Assist</span></h1>
+                <h1>Bem-vindo ao <span class="brand-highlight">TechAI Assist</span></h1>
                 <p class="hero-subtitle">Seu sistema completo de gestão para assistência técnica inteligente</p>
                 <div class="user-greeting" id="userGreeting">
                     <!-- Saudação personalizada será inserida aqui -->
@@ -176,6 +177,7 @@
             </div>
         </div>
     </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -231,13 +233,18 @@
     <style>
         /* LANDING PAGE STYLES */
 
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
         /* HERO SECTION */
         .hero-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 60px;
             align-items: center;
-            padding: 60px 0;
+            padding: 80px 0;
             min-height: 70vh;
         }
 

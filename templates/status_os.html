@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar Status da OS - TechAI Assist</title>
+    <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        /* Estilos específicos para a página de status da OS */
+        body {
+            background: linear-gradient(135deg, #1e3a8a 0%, #088bab 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .status-container {
+            background: #18415b;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .logo-section {
+            margin-bottom: 30px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .logo-section img {
+            width: 220px;
+            height: auto;
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .subtitle {
+            color: #ffffff;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #f9fafb;
+            color: #333;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #088bab;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(8, 139, 171, 0.1);
+        }
+
+        .consult-btn {
+            width: 100%;
+            padding: 15px;
+            background: #088bab;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .consult-btn:hover:not(:disabled) {
+            background: #066a7a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(8, 139, 171, 0.3);
+        }
+
+        .consult-btn:disabled {
+            background: #6b7280;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .os-details {
+            display: none;
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        .os-header {
+            background: rgba(8, 139, 171, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border-left: 4px solid #088bab;
+        }
+
+        .os-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #088bab;
+            margin-bottom: 5px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-aguardando { background: #fef3c7; color: #d97706; }
+        .status-em_reparo { background: #dbeafe; color: #2563eb; }
+        .status-pronto { background: #d1fae5; color: #065f46; }
+        .status-entregue { background: #d1fae5; color: #065f46; }
+        .status-cancelado { background: #fee2e2; color: #dc2626; }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #ffffff;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #ffffff;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #088bab;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .back-link {
+            color: #088bab;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsivo */
+        @media (max-width: 480px) {
+            .status-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="status-container">
+        <!-- Logo e Título -->
+        <div class="logo-section">
+            <img src="/img/logo.svg" alt="Logo TechAI Assist">
+        </div>
+        <h1 class="title">Consultar Status da OS</h1>
+        <p class="subtitle">Digite o número da sua ordem de serviço</p>
+
+        <!-- Mensagens -->
+        <div id="errorMessage" class="message error-message"></div>
+        <div id="successMessage" class="message success-message"></div>
+
+        <!-- Formulário de Consulta -->
+        <form id="statusForm" class="status-form">
+            <div class="form-group">
+                <label for="numeroOS">Número da Ordem de Serviço</label>
+                <input
+                    type="text"
+                    id="numeroOS"
+                    name="numeroOS"
+                    placeholder="Ex: #OS0001"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+
+            <button type="submit" id="consultBtn" class="consult-btn">
+                <span id="btnText">Consultar Status</span>
+                <div id="loading" class="loading">
+                    <div class="spinner"></div>
+                    <span>Consultando...</span>
+                </div>
+            </button>
+        </form>
+
+        <!-- Detalhes da OS -->
+        <div id="osDetails" class="os-details">
+            <div class="os-header">
+                <div class="os-number" id="osNumber"></div>
+                <span id="statusBadge" class="status-badge"></span>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Cliente</div>
+                    <div class="detail-value" id="clienteNome"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Tipo de Aparelho</div>
+                    <div class="detail-value" id="tipoAparelho"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Marca/Modelo</div>
+                    <div class="detail-value" id="marcaModelo"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Data de Criação</div>
+                    <div class="detail-value" id="dataCriacao"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Prazo Estimado</div>
+                    <div class="detail-value" id="prazoEstimado"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Prazo Limite</div>
+                    <div class="detail-value" id="prazoLimite"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Valor do Orçamento</div>
+                    <div class="detail-value" id="valorOrcamento"></div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Última Atualização</div>
+                    <div class="detail-value" id="dataAtualizacao"></div>
+                </div>
+            </div>
+
+            <div class="detail-item" style="grid-column: 1 / -1; margin-top: 15px;">
+                <div class="detail-label">Problema Relatado</div>
+                <div class="detail-value" id="problemaRelatado"></div>
+            </div>
+
+            <div class="detail-item" id="diagnosticoContainer" style="grid-column: 1 / -1; margin-top: 15px; display: none;">
+                <div class="detail-label">Diagnóstico Técnico</div>
+                <div class="detail-value" id="diagnosticoTecnico"></div>
+            </div>
+        </div>
+
+        <!-- Rodapé -->
+        <div class="footer">
+            <p>© 2025 TechAI Assist - Sistema de Gerenciamento de Assistência Técnica</p>
+            <p><a href="/" class="back-link">← Voltar ao início</a></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // ========================================
+        // SCRIPT DA PÁGINA DE STATUS DA OS
+        // ========================================
+
+        // Elementos do DOM
+        const statusForm = document.getElementById('statusForm');
+        const numeroOSInput = document.getElementById('numeroOS');
+        const consultBtn = document.getElementById('consultBtn');
+        const btnText = document.getElementById('btnText');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const osDetails = document.getElementById('osDetails');
+
+        // ============================
+        // FUNÇÕES DE INTERFACE
+        // ============================
+
+        /**
+         * Mostra mensagem de erro
+         * @param {string} mensagem - Mensagem a ser exibida
+         */
+        function mostrarErro(mensagem) {
+            errorMessage.textContent = mensagem;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+
+        /**
+         * Mostra mensagem de sucesso
+         * @param {string} mensagem - Mensagem a ser exibida
+         */
+        function mostrarSucesso(mensagem) {
+            successMessage.textContent = mensagem;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        /**
+         * Esconde todas as mensagens
+         */
+        function esconderMensagens() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        /**
+         * Ativa/desativa estado de carregamento
+         * @param {boolean} ativo - Se deve mostrar loading
+         */
+        function toggleLoading(ativo) {
+            if (ativo) {
+                consultBtn.disabled = true;
+                btnText.style.display = 'none';
+                loading.style.display = 'flex';
+            } else {
+                consultBtn.disabled = false;
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+            }
+        }
+
+        /**
+         * Formata data para português brasileiro
+         * @param {string} dataISO - Data em formato ISO
+         * @returns {string} Data formatada
+         */
+        function formatarData(dataISO) {
+            if (!dataISO) return 'Não informado';
+            const data = new Date(dataISO);
+            return data.toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        /**
+         * Formata valor monetário
+         * @param {number} valor - Valor em reais
+         * @returns {string} Valor formatado
+         */
+        function formatarMoeda(valor) {
+            if (!valor || valor === 0) return 'Não informado';
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(valor);
+        }
+
+        /**
+         * Traduz status para português
+         * @param {string} status - Status em inglês
+         * @returns {string} Status traduzido
+         */
+        function traduzirStatus(status) {
+            const traducoes = {
+                'aguardando': 'Aguardando',
+                'em_reparo': 'Em Reparo',
+                'pronto': 'Pronto',
+                'entregue': 'Entregue',
+                'cancelado': 'Cancelado'
+            };
+            return traducoes[status] || status;
+        }
+
+        /**
+         * Exibe os detalhes da OS
+         * @param {object} dados - Dados da OS
+         */
+        function exibirDetalhesOS(dados) {
+            document.getElementById('osNumber').textContent = dados.numeroOS;
+            document.getElementById('statusBadge').textContent = traduzirStatus(dados.status);
+            document.getElementById('statusBadge').className = `status-badge status-${dados.status}`;
+
+            document.getElementById('clienteNome').textContent = dados.clienteNome;
+            document.getElementById('tipoAparelho').textContent = dados.tipoAparelho;
+            document.getElementById('marcaModelo').textContent = dados.marcaModelo;
+            document.getElementById('dataCriacao').textContent = formatarData(dados.dataCriacao);
+            document.getElementById('prazoEstimado').textContent = `${dados.prazoEstimado} dias`;
+            document.getElementById('prazoLimite').textContent = formatarData(dados.prazoLimite);
+            document.getElementById('valorOrcamento').textContent = formatarMoeda(dados.valorOrcamento);
+            document.getElementById('dataAtualizacao').textContent = formatarData(dados.dataAtualizacao);
+            document.getElementById('problemaRelatado').textContent = dados.problemaRelatado;
+
+            if (dados.diagnosticoTecnico) {
+                document.getElementById('diagnosticoTecnico').textContent = dados.diagnosticoTecnico;
+                document.getElementById('diagnosticoContainer').style.display = 'block';
+            } else {
+                document.getElementById('diagnosticoContainer').style.display = 'none';
+            }
+
+            osDetails.style.display = 'block';
+        }
+
+        /**
+         * Limpa os detalhes da OS
+         */
+        function limparDetalhesOS() {
+            osDetails.style.display = 'none';
+        }
+
+        // ============================
+        // EVENTOS
+        // ============================
+
+        // Evento de submit do formulário
+        statusForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Esconde mensagens anteriores
+            esconderMensagens();
+            limparDetalhesOS();
+
+            // Pega o valor do campo
+            const numeroOS = numeroOSInput.value.trim();
+
+            // Validação básica
+            if (!numeroOS) {
+                mostrarErro('Por favor, digite o número da ordem de serviço.');
+                return;
+            }
+
+            // Ativa loading
+            toggleLoading(true);
+
+            try {
+                // Faz a consulta via API
+                const resposta = await fetch(`/api/os/status/${encodeURIComponent(numeroOS)}`);
+
+                if (!resposta.ok) {
+                    const erro = await resposta.json();
+                    throw new Error(erro.mensagem || 'Erro ao consultar a OS');
+                }
+
+                const dados = await resposta.json();
+
+                // Exibe os detalhes
+                exibirDetalhesOS(dados);
+                mostrarSucesso('Ordem de serviço encontrada com sucesso!');
+
+                // Rola para os detalhes
+                setTimeout(() => {
+                    osDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 500);
+
+            } catch (error) {
+                console.error('Erro na consulta:', error);
+                mostrarErro(error.message || 'Erro ao consultar a ordem de serviço. Tente novamente.');
+                limparDetalhesOS();
+                toggleLoading(false);
+            } finally {
+                toggleLoading(false);
+            }
+        });
+
+        // Evento de foco nos campos (remove mensagens de erro)
+        numeroOSInput.addEventListener('focus', esconderMensagens);
+
+        // Evento de entrada no campo (limpa detalhes se mudar o número)
+        numeroOSInput.addEventListener('input', function() {
+            if (osDetails.style.display === 'block') {
+                limparDetalhesOS();
+                esconderMensagens();
+            }
+        });
+
+        // ============================
+        // INICIALIZAÇÃO
+        // ============================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Foca no campo de número da OS
+            numeroOSInput.focus();
+
+            console.log('✅ Página de status da OS carregada!');
+        });
+    </script>
+</body>
+
+</html>

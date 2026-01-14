@@ -113,6 +113,10 @@ def create_app():
     def financeiro_legacy():
         return redirect('/financeiro')
 
+    @app.route('/status-os')
+    def status_os():
+        return render_template('status_os.html')
+
     # Rota para favicon.ico
     @app.route('/favicon.ico')
     def favicon():
