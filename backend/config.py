@@ -1,5 +1,8 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
+# carrega variavei de ambiente
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -17,6 +20,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     SECRET_KEY = os.getenv("SECRET_KEY", "mude-esta-chave-em-producao")
+
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 
 class DevelopmentConfig(Config):
@@ -36,6 +41,3 @@ config_by_name = dict(
 def get_config():
     env = os.getenv("FLASK_ENV", "development")
     return config_by_name.get(env, DevelopmentConfig)
-
-
-
