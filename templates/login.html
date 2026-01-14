@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tela de Login - IA SISTEM</title>
+    <title>Tela de Login - TechAI Assist</title>
     <link href="/css/styles.css" rel="stylesheet">
     <style>
         /* Estilos específicos para a página de login */
@@ -179,13 +179,34 @@
             100% { transform: rotate(360deg); }
         }
 
+        .create-account-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .create-account-link p {
+            color: #ffffff;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .create-account-link a {
+            color: #088bab;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .create-account-link a:hover {
+            text-decoration: underline;
+        }
+
         /* Responsivo */
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
                 margin: 10px;
             }
-            
+
             .login-title {
                 font-size: 24px;
             }
@@ -196,12 +217,10 @@
 <body>
     <div class="login-container">
         <!-- Logo e Título -->
-        <div class="login-logo">
-            <img src="/img/IA SISTEM 2.png" alt="Logo IA Sistem">
+        <div class="">
+            <img src="/img/logo.svg" alt="Logo TechAI Assist">
         </div>
-        <h1 class="login-title"></h1>
-        <p class="login-subtitle">Um sistema criado para facilitar rotinas, garantir controles e otimizar cada etapa de sua assistência técnica.</p>
-
+        <h1 class="login-title" style="color: #f0f0f0;"> TechAI Assist </h1>
 
         <!-- Mensagens de Erro/Sucesso -->
         <div id="errorMessage" class="error-message"></div>
@@ -242,13 +261,15 @@
             </button>
         </form>
 
-        
+        <!-- Link para criar conta -->
+        <div class="create-account-link">
+            <p>Não tem uma conta? <a href="#" id="createAccountLink">Criar nova conta</a></p>
+        </div>
 
         <!-- Rodapé -->
         <div class="login-footer">
-            <p>© 2025 IA SISTEM - Curso Full Stack Senac</p>
-            <p>Desenvolvido para fins educacionais</p>
-            <p>usuário:admin-senha:admin123</p>
+            <p style="color: rgb(255, 255, 255);">© 2025 TechAI Assist - Curso Full Stack Senac</p>
+            <p style="color: rgb(255, 255, 255);">Desenvolvido para fins educacionais</p>
         </div>
     </div>
 
@@ -358,7 +379,7 @@
 
                 // Redireciona após 1 segundo
                 setTimeout(() => {
-                    window.location.href = '/atendimento';
+                    window.location.href = '/dashboard';
                 }, 1000);
 
             } catch (error) {
@@ -398,33 +419,11 @@
         // FUNÇÕES AUXILIARES
         // ============================
 
-        /**
-         * Preenche automaticamente as credenciais de demo
-         * (Útil para demonstração rápida)
-         */
-        function preencherDemo() {
-            usuarioInput.value = 'admin';
-            senhaInput.value = 'admin123';
-        }
-
-        // Adiciona botão de demo (opcional)
-        const demoBtn = document.createElement('button');
-        demoBtn.type = 'button';
-        demoBtn.textContent = 'Preencher Demo';
-        demoBtn.style.cssText = `
-            background: var(--yellow);
-            color: #92400e;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            margin-top: 10px;
-        `;
-        demoBtn.onclick = preencherDemo;
-        
-        // Adiciona o botão após o formulário
-        loginForm.appendChild(demoBtn);
+        // Função para lidar com o clique no link "Criar nova conta"
+        document.getElementById('createAccountLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/register';
+        });
     </script>
 </body>
 

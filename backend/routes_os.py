@@ -227,3 +227,30 @@ def deletar_os(os_id: int):
     db.session.delete(os_obj)
     db.session.commit()
     return "", 204
+
+
+@bp.get("/status/<numero_os>")
+def consultar_status_os_publico(numero_os: str):
+    """Rota pública para consulta de status da OS por clientes."""
+    os_obj = OrdemServico.query.filter_by(numero_os=numero_os).first()
+    if not os_obj:
+        return jsonify({
+            "erro": "OS não encontrada",
+            "mensagem": f"Não foi encontrada uma ordem de serviço com o número {numero_os}"
+        }), 404
+
+    # Retorna dados públicos da OS
+    return jsonify({
+        "numeroOS": os_obj.numero_os,
+        "status": os_obj.status,
+        "clienteNome": os_obj.cliente.nome if os_obj.cliente else "Cliente não informado",
+        "tipoAparelho": os_obj.tipo_aparelho,
+        "marcaModelo": os_obj.marca_modelo,
+        "problemaRelatado": os_obj.problema_relatado,
+        "diagnosticoTecnico": os_obj.diagnostico_tecnico,
+        "prazoEstimado": os_obj.prazo_estimado,
+        "valorOrcamento": float(os_obj.valor_orcamento or 0),
+        "dataCriacao": os_obj.criado_em.isoformat() if os_obj.criado_em else None,
+        "dataAtualizacao": os_obj.atualizado_em.isoformat() if os_obj.atualizado_em else None,
+        "prazoLimite": (os_obj.criado_em + timedelta(days=os_obj.prazo_estimado)).isoformat() if os_obj.criado_em else None
+    })

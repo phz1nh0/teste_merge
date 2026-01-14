@@ -1,13 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Atendimento - IA SISTEM{% endblock %}
+{% block title %}Atendimento - TechAI Assist{% endblock %}
 
 {% set active_page = 'atendimento' %}
 
 {% block content %}
     <div class="page-header">
-        <h1 style="color: #FFFFFF;">Atendimento</h1>
-        <div class="breadcrumb" style="color:#fef3c7">Dashboard / Atendimento</div>
+        <h1>Atendimento</h1>
     </div>
 
     <!-- AÇÕES RÁPIDAS -->
@@ -701,10 +700,11 @@
         }
 
         .stat-card {
-            background: white;
+            background: var(--bg-primary);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px var(--shadow-color);
+            border: 2px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 15px;
@@ -728,12 +728,12 @@
         .stat-info h3 {
             font-size: 28px;
             font-weight: 700;
-            color: var(--dark-blue);
+            color: var(--text-primary);
             margin: 0;
         }
 
         .stat-info p {
-            color: var(--gray-medium);
+            color: var(--text-secondary);
             margin: 5px 0 0 0;
             font-size: 14px;
         }
@@ -748,8 +748,8 @@
             width: 30px;
             height: 30px;
             background: var(--primary-blue);
-                color: white;
-                border-radius: 6px;
+            color: white;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -805,9 +805,10 @@
             justify-content: space-between;
             align-items: center;
             padding: 15px;
-            border: 1px solid #e5e7eb;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             margin-bottom: 10px;
+            background: var(--bg-primary);
         }
 
         .cliente-info {

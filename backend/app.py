@@ -113,11 +113,19 @@ def create_app():
     def financeiro_legacy():
         return redirect('/financeiro')
 
+    @app.route('/status-os')
+    def status_os():
+        return render_template('status_os.html')
+
+    @app.route('/register')
+    def register():
+        return render_template('register.html')
+
     # Rota para favicon.ico
     @app.route('/favicon.ico')
     def favicon():
         try:
-            return send_from_directory('../img', 'logo.png', mimetype='image/png')
+            return send_from_directory('../img', 'favicon.png', mimetype='image/png')
         except FileNotFoundError:
             # Se não encontrar o logo, retorna uma resposta vazia
             return '', 204
